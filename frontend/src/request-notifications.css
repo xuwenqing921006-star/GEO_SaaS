@@ -1,0 +1,106 @@
+.request-notification-region {
+  position: fixed;
+  z-index: 4000;
+  top: 22px;
+  right: 24px;
+  display: grid;
+  width: min(390px, calc(100vw - 32px));
+  gap: 12px;
+  pointer-events: none;
+}
+
+.request-notification {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 28px;
+  gap: 12px;
+  align-items: start;
+  padding: 14px 12px 14px 14px;
+  border: 1px solid #d7e2f3;
+  border-left: 4px solid #2f6fec;
+  border-radius: 14px;
+  background: rgb(255 255 255 / 96%);
+  box-shadow: 0 18px 48px rgb(31 67 130 / 18%);
+  color: #143653;
+  pointer-events: auto;
+  backdrop-filter: blur(12px);
+}
+
+.request-notification[data-tone="success"] {
+  border-left-color: #159570;
+}
+
+.request-notification[data-tone="error"] {
+  border-left-color: #d95757;
+}
+
+.request-notification[data-tone="warning"] {
+  border-left-color: #db8b24;
+}
+
+.request-notification-icon {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 10px;
+  background: #eaf1ff;
+  color: #2f6fec;
+  font-weight: 800;
+}
+
+.request-notification[data-tone="success"] .request-notification-icon {
+  background: #e4f7f0;
+  color: #11795d;
+}
+
+.request-notification[data-tone="error"] .request-notification-icon {
+  background: #fff0ef;
+  color: #bd3838;
+}
+
+.request-notification[data-tone="warning"] .request-notification-icon {
+  background: #fff5e5;
+  color: #a76511;
+}
+
+.request-notification strong {
+  display: block;
+  line-height: 1.45;
+}
+
+.request-notification p {
+  margin: 4px 0 0;
+  color: #60758b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.request-notification button {
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #718398;
+  cursor: pointer;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.request-notification button:hover {
+  background: #edf3fa;
+  color: #183b5b;
+}
+
+.request-notification-enter-active,
+.request-notification-leave-active {
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
+}
+
+.request-notification-enter-from,
+.request-notification-leave-to {
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+}

@@ -1,0 +1,165 @@
+@media (max-width: 1359px) {
+  .channels-page .recommendation-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .app-shell {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+
+  .sidebar {
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .workspace {
+    padding: 18px;
+  }
+
+  .work-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .result-track {
+    grid-template-columns: repeat(2, minmax(110px, 1fr));
+  }
+
+  .result-track > div:nth-child(3) {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .result-track > div:nth-child(4) {
+    border-top: 1px solid var(--line);
+  }
+}
+
+@media (max-width: 1024px) {
+  .stale-notice {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .channels-page {
+    padding: 24px 20px 56px;
+  }
+
+  .channels-page .page-head {
+    align-items: stretch;
+    margin: -24px -20px 24px;
+    padding: 30px 20px;
+    flex-direction: column;
+  }
+
+  .channel-head-actions {
+    align-items: flex-start;
+  }
+
+  .channel-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .section-heading p {
+    text-align: left;
+  }
+
+  .app-shell {
+    grid-template-columns: 62px minmax(0, 1fr);
+  }
+
+  .sidebar .brand span:last-child,
+  .nav-item small,
+  .nav-label {
+    display: none;
+  }
+
+  .sidebar .brand {
+    justify-content: center;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .nav-item {
+    justify-content: center;
+    padding-left: 7px;
+    padding-right: 7px;
+  }
+
+  .nav-icon {
+    flex-basis: 30px;
+    width: 30px;
+    height: 30px;
+  }
+
+  .topbar {
+    padding: 0 14px;
+  }
+
+  .client-context {
+    min-width: 150px;
+  }
+
+  .result-track {
+    flex-basis: 340px;
+  }
+
+  .metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .work-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .toolbar {
+    flex-wrap: wrap;
+  }
+
+  .clients-workspace .page-head {
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .overview-metrics,
+  .overview-details {
+    grid-template-columns: 1fr;
+  }
+
+  .overview-task {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 479px) {
+  .channels-page .recommendation-row {
+    grid-template-columns: 1fr;
+  }
+
+  .channel-empty {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell {
+    display: none;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .full-field {
+    grid-column: auto;
+  }
+}

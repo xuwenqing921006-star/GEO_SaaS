@@ -1,0 +1,78 @@
+[project]
+name = "geo-saas-backend"
+version = "0.1.0"
+description = "GEO SaaS API and worker baseline"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "alembic==1.18.5",
+  "asyncpg==0.31.0",
+  "cryptography==50.0.0",
+  "fastapi==0.140.0",
+  "httpx==0.28.1",
+  "openpyxl==3.1.5",
+  "pillow==12.3.0",
+  "playwright==1.58.0",
+  "pwdlib[argon2]>=0.3.0",
+  "pydantic-settings==2.14.2",
+  "pypdf==6.15.0",
+  "python-docx==1.2.0",
+  "python-multipart==0.0.31",
+  "sqlalchemy==2.0.51",
+  "uvicorn[standard]==0.51.0",
+]
+
+[build-system]
+requires = ["hatchling==1.29.0"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = [
+  "aiosqlite>=0.22.1",
+  "bandit>=1.9.4",
+  "httpx==0.28.1",
+  "mypy==2.3.0",
+  "pytest==9.1.1",
+  "pytest-asyncio==1.4.0",
+  "pytest-cov==7.1.0",
+  "ruff==0.16.0",
+  "types-openpyxl==3.1.5.20250602",
+]
+
+[tool.uv]
+package = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
+
+[tool.pytest.ini_options]
+addopts = "-ra --strict-config --strict-markers"
+testpaths = ["tests"]
+markers = [
+  "unit: isolated fast tests",
+  "integration: tests that require PostgreSQL or other infrastructure",
+  "contract: API and documentation contract checks",
+  "performance: opt-in target-capacity verification",
+]
+
+[tool.pytest-asyncio]
+asyncio_mode = "auto"
+
+[tool.coverage.run]
+concurrency = ["thread"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "ASYNC", "RUF"]
+allowed-confusables = ["，"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = "asyncpg.*"
+ignore_missing_imports = true

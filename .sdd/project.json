@@ -1,0 +1,12 @@
+{
+  "schema_version": 2,
+  "id": "geo-saas",
+  "name": "GEO SaaS 系统",
+  "project_type": "web",
+  "target_platform": "web",
+  "source": "new",
+  "repo_url": null,
+  "locale": "zh-CN",
+  "created_at": "2026-07-24T13:34:45.952Z",
+  "harness_version": "0.1.0"
+}

@@ -1,0 +1,6 @@
+# Optional override for a host-native API/Worker. Does not start them.
+# docker compose -p geo-saas-dev --env-file .env -f compose.yaml -f compose.dev.yaml up -d --build --wait db
+services:
+  db:
+    ports:
+      - "127.0.0.1:${DEV_DB_PORT:-55432}:5432"

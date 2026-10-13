@@ -1,0 +1,9 @@
+---
+description: GEO SaaS general project conventions
+alwaysApply: true
+---
+
+Use the tool-independent conventions in AGENTS.md. Read README.md for setup and
+verification, docs/handoff/HANDOFF.md for handoff context, and
+docs/handoff/OPEN-TASKS.md for unfinished work. No external harness, fixed IDE,
+or author-specific filesystem path is required.

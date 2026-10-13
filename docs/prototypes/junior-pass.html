@@ -1,0 +1,1099 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GEO 工作台 · B2 结构验证版</title>
+  <style>
+    :root {
+      --primary: #126454;
+      --primary-soft: #e7f1ed;
+      --background: #f4f5f2;
+      --surface: #ffffff;
+      --paper: #fcfbf7;
+      --text: #18211f;
+      --secondary: #5d6966;
+      --muted: #687572;
+      --border: #dce2df;
+      --info: #315fbd;
+      --warning: #9a6413;
+      --danger: #b63d3a;
+      --success: #1a7357;
+      --focus: #2d6cdf;
+      --sidebar: 232px;
+      font-family: "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background: var(--background);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 960px;
+      background: var(--background);
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    button, input, select, textarea { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    .review {
+      padding: 16px 20px;
+      border-bottom: 1px solid #c9d6d1;
+      background: #edf3f0;
+    }
+
+    .review-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      max-width: 1600px;
+      margin: 0 auto 12px;
+    }
+
+    .review h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.4;
+    }
+
+    .review p {
+      margin: 2px 0 0;
+      color: var(--secondary);
+    }
+
+    .review-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      max-width: 1600px;
+      margin: 0 auto;
+      border: 1px solid #c9d6d1;
+      background: rgba(255,255,255,.72);
+    }
+
+    .review-item {
+      min-height: 86px;
+      padding: 12px 14px;
+      border-right: 1px solid #c9d6d1;
+    }
+
+    .review-item:last-child { border-right: 0; }
+    .review-item strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .review-item span { display: block; color: var(--secondary); font-size: 12px; }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 24px;
+      padding: 2px 8px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: var(--surface);
+      color: var(--secondary);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .badge.success { color: var(--success); border-color: #b8d8cc; background: #edf7f3; }
+    .badge.warning { color: var(--warning); border-color: #e7d5b5; background: #fff8e9; }
+    .badge.danger { color: var(--danger); border-color: #ebc2c0; background: #fff0f0; }
+    .badge.info { color: var(--info); border-color: #c4d1ec; background: #f0f4ff; }
+
+    .app {
+      display: grid;
+      grid-template-columns: var(--sidebar) minmax(0, 1fr);
+      min-height: 900px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 0;
+      align-self: start;
+      height: 100vh;
+      padding: 16px 12px;
+      border-right: 1px solid var(--border);
+      background: #f8f9f6;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      padding: 0 10px;
+      margin-bottom: 14px;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .brand small {
+      margin-left: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .nav {
+      display: grid;
+      gap: 3px;
+    }
+
+    .nav button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      min-height: 38px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--secondary);
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav button:hover { background: #eef1ee; color: var(--text); }
+    .nav button.active { background: var(--primary-soft); color: #0d4e42; font-weight: 600; }
+
+    .nav-icon {
+      display: grid;
+      place-items: center;
+      width: 20px;
+      height: 20px;
+      border: 1px solid #aeb9b5;
+      border-radius: 5px;
+      font-size: 10px;
+    }
+
+    .nav-spacer { height: 12px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
+
+    .shell { min-width: 0; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: minmax(260px, 1fr) minmax(260px, 440px) auto;
+      align-items: center;
+      gap: 14px;
+      height: 56px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,.96);
+    }
+
+    .client-switch {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .client-switch strong { white-space: nowrap; }
+    .client-switch span { color: var(--muted); white-space: nowrap; }
+
+    .search {
+      width: 100%;
+      height: 34px;
+      padding: 0 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fafbf9;
+    }
+
+    .top-actions { display: flex; align-items: center; gap: 8px; }
+
+    .ghost, .primary, .text-button {
+      min-height: 34px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .ghost {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+    }
+
+    .ghost:hover { border-color: #a9bbb5; background: #fafcfb; }
+
+    .primary {
+      border: 1px solid var(--primary);
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .primary:hover { background: #0e5648; }
+
+    .text-button {
+      border: 0;
+      background: transparent;
+      color: var(--info);
+    }
+
+    .context-track {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
+      align-items: center;
+      min-height: 44px;
+      padding: 0 20px;
+      border-bottom: 1px solid var(--border);
+      background: #fbfcfa;
+    }
+
+    .context-track.hidden { display: none; }
+
+    .track-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+      color: var(--secondary);
+      font-size: 12px;
+    }
+
+    .track-step::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      flex: 0 0 8px;
+      border-radius: 50%;
+      background: #9aa6a2;
+    }
+
+    .track-step.ok::before { background: var(--success); }
+    .track-step.warn::before { background: var(--warning); }
+    .track-step.bad::before { background: var(--danger); }
+    .track-step strong { color: var(--text); font-weight: 600; }
+    .track-meta { color: var(--muted); font-size: 12px; }
+
+    main { padding: 20px; }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .page-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .page-head h2 { margin: 0; font-size: 20px; line-height: 1.4; }
+    .page-head p { margin: 4px 0 0; color: var(--secondary); }
+    .actions { display: flex; gap: 8px; align-items: center; }
+
+    .panel {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .panel-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      min-height: 46px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .panel-head h3 { margin: 0; font-size: 14px; }
+    .panel-body { padding: 14px; }
+
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .metric {
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface);
+    }
+
+    .metric span { display: block; color: var(--secondary); font-size: 12px; }
+    .metric strong { display: block; margin: 5px 0 2px; font-size: 20px; }
+    .metric small { color: var(--muted); }
+
+    .grid-70 {
+      display: grid;
+      grid-template-columns: minmax(0, 7fr) minmax(280px, 3fr);
+      gap: 14px;
+    }
+
+    .grid-65 {
+      display: grid;
+      grid-template-columns: minmax(0, 13fr) minmax(300px, 7fr);
+      gap: 14px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 280px minmax(520px, 1fr) 340px;
+      gap: 12px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      min-height: 46px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: var(--surface);
+    }
+
+    .filter {
+      height: 32px;
+      padding: 0 9px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e8ece9;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th { background: #fafbf9; color: var(--secondary); font-size: 12px; font-weight: 600; }
+    tbody tr:hover { background: #fafcfb; }
+    tbody tr:last-child td { border-bottom: 0; }
+
+    .link-row { cursor: pointer; }
+    .client-name strong { display: block; }
+    .client-name small { color: var(--muted); }
+
+    .next-list, .issue-list, .topic-list, .check-list, .stage-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .next-item, .issue-item, .topic-item, .check-item, .stage-item {
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fbfcfa;
+    }
+
+    .next-item strong, .issue-item strong, .topic-item strong, .check-item strong, .stage-item strong {
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .next-item p, .issue-item p, .topic-item p, .check-item p, .stage-item p {
+      margin: 0;
+      color: var(--secondary);
+      font-size: 12px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 18px;
+      min-height: 40px;
+      padding: 0 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+      overflow-x: auto;
+    }
+
+    .tabs button {
+      position: relative;
+      flex: 0 0 auto;
+      border: 0;
+      background: transparent;
+      color: var(--secondary);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .tabs button.active { color: var(--text); font-weight: 600; }
+    .tabs button.active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -1px;
+      height: 2px;
+      background: var(--primary);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px 14px;
+    }
+
+    label { display: grid; gap: 5px; color: var(--secondary); font-size: 12px; }
+    label input, label textarea, label select {
+      width: 100%;
+      min-height: 36px;
+      padding: 8px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    label textarea { min-height: 96px; resize: vertical; }
+
+    .span-2 { grid-column: 1 / -1; }
+
+    .wire-block {
+      display: grid;
+      place-items: center;
+      min-height: 92px;
+      padding: 12px;
+      border: 1px dashed #b8c2be;
+      border-radius: 7px;
+      background: #f8faf8;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .diagnosis-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .diagnosis-cell {
+      padding: 12px 14px;
+      border-right: 1px solid var(--border);
+    }
+
+    .diagnosis-cell:last-child { border-right: 0; }
+    .diagnosis-cell span { color: var(--secondary); font-size: 12px; }
+    .diagnosis-cell strong { display: block; margin: 5px 0; }
+
+    .outcome-ladder {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      margin-bottom: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .outcome-step {
+      position: relative;
+      padding: 11px 14px;
+      border-right: 1px solid var(--border);
+    }
+
+    .outcome-step:last-child { border-right: 0; }
+    .outcome-step small { display: block; color: var(--muted); }
+    .outcome-step strong { display: block; margin: 4px 0 2px; font-size: 13px; }
+    .outcome-step.done { background: #f0f8f5; }
+    .outcome-step.current { background: #fff8e8; box-shadow: inset 0 -2px 0 #d89b24; }
+    .outcome-step.pending { background: #fafbf9; color: var(--secondary); }
+
+    .workspace-stepper {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      background: #fff;
+    }
+
+    .workspace-stepper span {
+      padding: 9px 8px;
+      border-right: 1px solid var(--border);
+      color: var(--secondary);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .workspace-stepper span:last-child { border-right: 0; }
+    .workspace-stepper .current { background: var(--primary-soft); color: #0d4e42; font-weight: 600; }
+
+    .brief {
+      min-height: 580px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .brief h3, .checks h3 { margin: 0 0 12px; font-size: 14px; }
+    .brief dl { margin: 0; }
+    .brief dt { margin-top: 12px; color: var(--muted); font-size: 12px; }
+    .brief dd { margin: 3px 0 0; }
+
+    .editor {
+      min-height: 580px;
+      padding: 24px 34px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--paper);
+    }
+
+    .editor h1 { margin: 0 0 18px; font-size: 24px; }
+    .editor h2 { margin: 24px 0 8px; font-size: 16px; }
+    .editor p { margin: 0 0 12px; line-height: 1.85; }
+    .fact-lock { border-bottom: 1px dotted var(--primary); background: #eef6f3; }
+
+    .checks {
+      min-height: 580px;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .login-wrap {
+      display: grid;
+      place-items: center;
+      min-height: 680px;
+    }
+
+    .login-card {
+      width: 400px;
+      padding: 26px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .login-card h2 { margin: 0 0 4px; }
+    .login-card p { margin: 0 0 20px; color: var(--secondary); }
+    .login-card label { margin-bottom: 12px; }
+    .login-card .primary { width: 100%; margin-top: 6px; }
+
+    .subnav-layout {
+      display: grid;
+      grid-template-columns: 210px minmax(0, 1fr);
+      min-height: 620px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--surface);
+      overflow: hidden;
+    }
+
+    .subnav { padding: 10px; border-right: 1px solid var(--border); background: #fafbf9; }
+    .subnav button {
+      display: block;
+      width: 100%;
+      padding: 9px 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--secondary);
+      text-align: left;
+    }
+    .subnav button.active { background: var(--primary-soft); color: #0d4e42; font-weight: 600; }
+    .settings-body { padding: 20px; }
+
+    .prototype-note {
+      margin-top: 14px;
+      padding: 10px 12px;
+      border: 1px dashed #b8c2be;
+      border-radius: 6px;
+      background: #fafbf9;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .channel-table {
+      table-layout: fixed;
+      font-size: 12px;
+    }
+
+    .channel-table th, .channel-table td {
+      padding: 9px 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .channel-table th:nth-child(1) { width: 11%; }
+    .channel-table th:nth-child(2) { width: 12%; }
+    .channel-table th:nth-child(3) { width: 18%; }
+    .channel-table th:nth-child(4) { width: 10%; }
+    .channel-table th:nth-child(5) { width: 16%; }
+    .channel-table th:nth-child(6) { width: 22%; }
+    .channel-table th:nth-child(7) { width: 11%; }
+
+    .plan-grid {
+      grid-template-columns: 230px minmax(0, 1fr) 360px;
+    }
+
+    @media (max-width: 1180px) {
+      :root { --sidebar: 76px; }
+      .brand { justify-content: center; padding: 0; font-size: 12px; }
+      .brand small, .nav-label { display: none; }
+      .nav button { justify-content: center; }
+      .grid-3 { grid-template-columns: 220px minmax(500px, 1fr); }
+      .plan-grid { grid-template-columns: 210px minmax(0, 1fr); }
+      .plan-grid > aside:last-child { grid-column: 1 / -1; }
+      .checks { grid-column: 1 / -1; min-height: auto; }
+      .review-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .review-item:nth-child(2) { border-right: 0; }
+      .review-item:nth-child(-n+2) { border-bottom: 1px solid #c9d6d1; }
+    }
+  </style>
+</head>
+<body>
+  <section class="review" aria-labelledby="review-title">
+    <div class="review-head">
+      <div>
+        <h1 id="review-title">B2 结构验证版 · 先确认页面结构与路径</h1>
+        <p>这是低保真结构原型，不是最终视觉稿。请重点检查信息顺序、页面区域和操作路径。</p>
+      </div>
+      <span class="badge info">原型代码不作为生产前端源码</span>
+    </div>
+    <div class="review-grid">
+      <div class="review-item">
+        <strong>原型形态</strong>
+        <span>桌面网页可点击流程，目标视口 1440×900；9 个页面共用一套应用框架。</span>
+      </div>
+      <div class="review-item">
+        <strong>关键路径</strong>
+        <span>客户 → 企业事实 → GEO 诊断 → 内容计划 → 内容工作台 → 渠道 → AI 监测。</span>
+      </div>
+      <div class="review-item">
+        <strong>设计假设</strong>
+        <span>单人高频使用、没有客户登录；信息密度优先；P05 是最重要的生产页面。</span>
+      </div>
+      <div class="review-item">
+        <strong>占位与未确认</strong>
+        <span>示例数据均为演示；图表、模型回复、平台结果在高保真阶段补齐，不使用竞品宣传页。</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">GEO 工作台 <small>结构版</small></div>
+      <nav class="nav" aria-label="主导航">
+        <button data-go="p01" class="active"><span class="nav-icon">客</span><span class="nav-label">客户</span></button>
+        <button data-go="p02"><span class="nav-icon">知</span><span class="nav-label">企业知识库</span></button>
+        <button data-go="p03"><span class="nav-icon">策</span><span class="nav-label">GEO 策略</span></button>
+        <button data-go="p04"><span class="nav-icon">题</span><span class="nav-label">内容计划</span></button>
+        <button data-go="p05"><span class="nav-icon">文</span><span class="nav-label">内容工作台</span></button>
+        <button data-go="p06"><span class="nav-icon">渠</span><span class="nav-label">发布渠道</span></button>
+        <button data-go="p07"><span class="nav-icon">测</span><span class="nav-label">AI 监测</span></button>
+        <div class="nav-spacer"></div>
+        <button data-go="p08"><span class="nav-icon">设</span><span class="nav-label">设置</span></button>
+        <button data-go="p00"><span class="nav-icon">登</span><span class="nav-label">登录页结构</span></button>
+      </nav>
+    </aside>
+
+    <div class="shell">
+      <header class="topbar">
+        <div class="client-switch">
+          <strong>莱恩美术</strong>
+          <span>即墨区 · 少儿美术培训</span>
+          <button class="ghost" type="button">切换客户</button>
+        </div>
+        <input class="search" aria-label="全局搜索" placeholder="搜索客户、事实、选题或内容">
+        <div class="top-actions">
+          <button class="ghost" type="button">任务 2</button>
+          <button class="ghost" type="button">负责人</button>
+        </div>
+      </header>
+
+      <div class="context-track hidden" id="context-track" aria-label="客户 GEO 证据轨道">
+        <div class="track-step warn"><strong>企业事实</strong><span>缺 3 项</span></div>
+        <div class="track-step warn"><strong>内容覆盖</strong><span>4/9 类</span></div>
+        <div class="track-step bad"><strong>来源覆盖</strong><span>缺公开内容源</span></div>
+        <div class="track-step"><strong>AI 可见性</strong><span>暂无基线</span></div>
+        <div class="track-meta">截至 7 月 26 日</div>
+      </div>
+
+      <main>
+        <section class="screen" id="p00" data-title="负责人登录">
+          <div class="login-wrap">
+            <div class="login-card">
+              <h2>登录 GEO 工作台</h2>
+              <p>仅平台负责人可使用</p>
+              <label>账号<input value="geo-owner" aria-label="负责人账号"></label>
+              <label>密码<input type="password" value="prototype" aria-label="负责人密码"></label>
+              <button class="primary" type="button" data-go="p01">登录</button>
+              <div class="prototype-note">占位：高保真阶段补充错误、锁定和会话过期状态。</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen active" id="p01" data-title="客户列表与工作台">
+          <div class="page-head">
+            <div>
+              <h2>客户</h2>
+              <p>查看每个客户当前最值得处理的问题。</p>
+            </div>
+            <button class="primary" type="button">创建客户</button>
+          </div>
+          <div class="metric-row">
+            <div class="metric"><span>活跃客户</span><strong>3</strong><small>演示数据</small></div>
+            <div class="metric"><span>资料待补全</span><strong>2</strong><small>莱恩美术缺 3 项</small></div>
+            <div class="metric"><span>本周内容</span><strong>5</strong><small>2 篇存在事实警告</small></div>
+            <div class="metric"><span>待复测问题</span><strong>18</strong><small>覆盖 6 个平台</small></div>
+          </div>
+          <div class="toolbar">
+            <input class="filter" aria-label="搜索客户" placeholder="搜索客户">
+            <select class="filter" aria-label="地区筛选"><option>全部地区</option><option>即墨区</option></select>
+            <select class="filter" aria-label="行业筛选"><option>全部行业</option><option>少儿美术培训</option></select>
+            <select class="filter" aria-label="状态筛选"><option>活跃客户</option><option>已归档</option></select>
+          </div>
+          <div class="grid-70">
+            <div class="panel">
+              <div class="panel-head"><h3>客户列表</h3><span class="badge">3 个活跃客户</span></div>
+              <table>
+                <thead><tr><th>客户</th><th>资料</th><th>策略</th><th>最近内容</th><th>最近监测</th><th>下一步</th></tr></thead>
+                <tbody>
+                  <tr class="link-row" data-go="p02">
+                    <td class="client-name"><strong>莱恩美术</strong><small>即墨区 · 少儿美术培训</small></td>
+                    <td><span class="badge warning">78%</span></td>
+                    <td>实体建立</td>
+                    <td>7 月 25 日</td>
+                    <td>暂无基线</td>
+                    <td><button class="text-button" data-go="p02">补全地址证据</button></td>
+                  </tr>
+                  <tr>
+                    <td class="client-name"><strong>安心到家</strong><small>即墨区 · 家政服务 · 演示</small></td>
+                    <td><span class="badge success">94%</span></td>
+                    <td>决策覆盖</td>
+                    <td>7 月 24 日</td>
+                    <td>7 月 22 日</td>
+                    <td>生成保洁选择指南</td>
+                  </tr>
+                  <tr>
+                    <td class="client-name"><strong>拾光摄影</strong><small>城阳区 · 儿童摄影 · 演示</small></td>
+                    <td><span class="badge warning">69%</span></td>
+                    <td>资料整理</td>
+                    <td>暂无</td>
+                    <td>暂无</td>
+                    <td>确认服务区域</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <aside class="panel">
+              <div class="panel-head"><h3>莱恩美术下一步</h3><span class="badge warning">3 项</span></div>
+              <div class="panel-body next-list">
+                <div class="next-item"><strong>补全地址与营业时间证据</strong><p>影响企业事实准确性和“附近”类问题。</p><button class="text-button" data-go="p02">前往知识库</button></div>
+                <div class="next-item"><strong>生成品牌基础介绍</strong><p>当前缺少统一的企业事实页。</p><button class="text-button" data-go="p04">查看选题</button></div>
+                <div class="next-item"><strong>建立 AI 基线</strong><p>还没有可比较的初始样本。</p><button class="text-button" data-go="p07">创建基线</button></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="screen" id="p02" data-title="客户资料与企业知识库">
+          <div class="page-head">
+            <div><h2>企业知识库</h2><p>行业通用事实底座；少儿美术只是当前示例模板。</p></div>
+            <div class="actions"><span class="badge warning">3 项待补全</span><button class="primary" type="button" data-go="p03">重新诊断</button></div>
+          </div>
+          <div class="panel">
+            <div class="tabs">
+              <button class="active">企业主体</button><button>服务/产品与客群</button><button>人员与能力证明</button><button>资料与提取</button><button>事实与证据</button><button>渠道一致性</button>
+            </div>
+            <div class="panel-body grid-65">
+              <div>
+                <div class="toolbar" style="margin:0 0 12px;padding:0;background:transparent;border:0;">
+                  <span class="badge info">通用核心字段</span><span class="badge">行业模板：少儿美术（示例）</span>
+                </div>
+                <div class="form-grid">
+                  <label>企业标准名称<input value="莱恩美术"></label>
+                  <label>企业简称<input value="莱恩美术"></label>
+                  <label>所在地区<input value="山东省 青岛市 即墨区"></label>
+                  <label>公开电话<input value="待客户确认"></label>
+                  <label class="span-2">基本服务/产品说明<textarea>面向即墨地区儿童提供少儿美术相关课程。课程、年龄和人员信息需以客户最终确认资料为准。</textarea></label>
+                </div>
+                <div class="prototype-note">行业模板只增加可选字段：教育可显示课程/年龄/师资，维修可显示服务项目/技术人员/设备，摄影可显示套餐/摄影师/作品授权。</div>
+              </div>
+              <aside class="issue-list">
+                <div class="issue-item"><strong>资料完整度 78%</strong><p>达到可诊断门槛，尚不满足全部内容导出要求。</p></div>
+                <div class="issue-item"><strong>地址缺少第二来源</strong><p>当前仅来自客户表格。</p></div>
+                <div class="issue-item"><strong>营业时间存在冲突</strong><p>宣传图与旧公众号文章不一致。</p></div>
+                <div class="wire-block">占位：原文件、候选事实和确认动作三栏对照</div>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" id="p03" data-title="GEO 诊断与策略中心">
+          <div class="page-head">
+            <div><h2>GEO 诊断与策略</h2><p>最终目标：无品牌词被发现，并在推荐问题中进入有依据的候选。</p></div>
+            <button class="primary" type="button">运行诊断</button>
+          </div>
+          <div class="outcome-ladder" aria-label="GEO 结果阶梯">
+            <div class="outcome-step current"><small>L1</small><strong>无品牌词被发现</strong><span>尚无基线</span></div>
+            <div class="outcome-step pending"><small>L2</small><strong>企业被正确理解</strong><span>等待验证</span></div>
+            <div class="outcome-step pending"><small>L3</small><strong>进入推荐候选</strong><span>等待验证</span></div>
+            <div class="outcome-step pending"><small>L4</small><strong>可重复出现</strong><span>需要多次复测</span></div>
+          </div>
+          <div class="diagnosis-strip">
+            <div class="diagnosis-cell"><span>企业事实</span><strong>部分缺失</strong><small>3 个问题</small></div>
+            <div class="diagnosis-cell"><span>内容覆盖</span><strong>4 / 9 类</strong><small>缺品牌基础页</small></div>
+            <div class="diagnosis-cell"><span>来源覆盖</span><strong>严重缺失</strong><small>公开内容源不足</small></div>
+            <div class="diagnosis-cell"><span>AI 可见性</span><strong>暂无基线</strong><small>需要创建监测批次</small></div>
+          </div>
+          <div class="grid-65">
+            <div class="panel">
+              <div class="panel-head"><h3>诊断问题</h3><div><span class="badge danger">2 个高优先级</span></div></div>
+              <table>
+                <thead><tr><th>问题</th><th>维度</th><th>影响</th><th>依据</th><th>建议动作</th></tr></thead>
+                <tbody>
+                  <tr class="link-row" data-go="p04"><td><strong>缺少统一的品牌基础介绍</strong></td><td>内容覆盖</td><td>品牌与“即墨少儿美术”关系不清</td><td>未发现对应内容</td><td>生成品牌基础页</td></tr>
+                  <tr><td><strong>企业事实缺少公开内容源</strong></td><td>来源覆盖</td><td>模型难以在公开页面建立关联</td><td>尚无运营方平台内容</td><td>先发布基础事实内容</td></tr>
+                  <tr><td><strong>尚未建立 AI 基线</strong></td><td>AI 可见性</td><td>无法判断后续变化</td><td>0 个监测样本</td><td><button class="text-button" data-go="p07">创建基线</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <aside class="panel">
+              <div class="panel-head"><h3>分阶段策略</h3></div>
+              <div class="panel-body stage-list">
+                <div class="stage-item"><strong>1. 企业实体建立</strong><p>补地址、营业时间、课程和统一介绍。</p></div>
+                <div class="stage-item"><strong>2. 无品牌发现覆盖</strong><p>覆盖品类发现、场景和选择问题。</p></div>
+                <div class="stage-item"><strong>3. 推荐理由建立</strong><p>补适合人群、能力证明、限制和授权案例。</p></div>
+                <div class="stage-item"><strong>4. 持续复测</strong><p>用相同问题对比变化。</p></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="screen" id="p04" data-title="关键词、问题与内容计划">
+          <div class="page-head">
+            <div><h2>关键词、问题与内容计划</h2><p>从真实地区、服务和消费意图生成可执行选题。</p></div>
+            <button class="primary" type="button">生成建议</button>
+          </div>
+          <div class="toolbar">
+            <span class="badge">即墨区</span><span class="badge">少儿美术培训</span><span class="badge info">品类发现</span><span class="badge info">推荐决策</span><span class="badge info">场景适配</span><span class="badge info">选择比较</span><span class="badge">品牌核验</span><span class="badge warning">搜索量暂无数据</span>
+          </div>
+          <div class="grid-3 plan-grid">
+            <aside class="panel">
+              <div class="panel-head"><h3>主题集群</h3></div>
+              <div class="panel-body topic-list">
+                <div class="topic-item"><strong>品类发现</strong><p>6 个非品牌问题 · L1</p></div>
+                <div class="topic-item"><strong>推荐决策</strong><p>8 个非品牌问题 · L3</p></div>
+                <div class="topic-item"><strong>场景与选择</strong><p>12 个问题 · L1/L3</p></div>
+                <div class="topic-item"><strong>品牌核验</strong><p>5 个品牌问题 · L2</p></div>
+              </div>
+            </aside>
+            <div class="panel">
+              <div class="tabs"><button>关键词</button><button>用户问题</button><button class="active">内容计划</button></div>
+              <table>
+                <thead><tr><th>选题</th><th>类型</th><th>优先级依据</th><th>状态</th></tr></thead>
+                <tbody>
+                  <tr class="link-row" data-go="p05"><td><strong>即墨少儿美术培训怎么选</strong></td><td>选择指南</td><td>业务价值高 · 证据较充分</td><td><span class="badge success">简报就绪</span></td></tr>
+                  <tr><td><strong>莱恩美术课程与适合年龄</strong></td><td>品牌基础</td><td>实体缺口高 · 需补年龄资料</td><td><span class="badge warning">缺证据</span></td></tr>
+                  <tr><td><strong>第一次试听美术课看什么</strong></td><td>常见问题</td><td>决策相关度高</td><td><span class="badge">建议</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+            <aside class="panel">
+              <div class="panel-head"><h3>内容简报</h3><button class="text-button" data-go="p05">生成内容</button></div>
+              <div class="panel-body">
+                <p><strong>目标问题</strong><br>即墨少儿美术培训应该怎么选？</p>
+                <p><strong>目标结果</strong><br><span class="badge info">L1 被发现</span> <span class="badge info">L3 推荐候选</span></p>
+                <p><strong>必须事实</strong><br>机构名称、所在地区、真实课程、适合年龄、试听规则。</p>
+                <p><strong>缺失证据</strong><br><span class="badge warning">班额待确认</span></p>
+                <p><strong>预期推荐理由</strong><br>适合哪些孩子、为什么适合、依据和限制条件。</p>
+                <p><strong>禁用说法</strong><br>“即墨第一”“保证提升绘画水平”。</p>
+                <p><strong>复测问题</strong><br>即墨少儿美术推荐一家，适合零基础孩子的有哪些？</p>
+                <p><strong>建议渠道</strong><br>搜狐号、头条号、百家号、知乎；公众号按行业选择。</p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="screen" id="p05" data-title="内容生成与优化工作台">
+          <div class="page-head">
+            <div><h2>内容工作台</h2><p>选题：即墨少儿美术培训怎么选</p></div>
+            <div class="actions"><span class="badge info">事实快照 V3</span><button class="ghost">版本比较</button><button class="primary" data-go="p06">标记可导出</button></div>
+          </div>
+          <div class="workspace-stepper">
+            <span>事实快照</span><span>提纲</span><span>草稿</span><span>交叉检查</span><span class="current">GEO 优化</span><span>自然化</span><span>最终复核</span>
+          </div>
+          <div class="grid-3">
+            <aside class="brief">
+              <h3>内容简报</h3>
+              <dl>
+                <dt>目标问题</dt><dd>即墨少儿美术培训应该怎么选？</dd>
+                <dt>目标结果</dt><dd>L1 被发现 · L3 推荐候选</dd>
+                <dt>目标读者</dt><dd>正在为孩子寻找美术课程的即墨家长</dd>
+                <dt>必须事实</dt><dd>莱恩美术、即墨区、课程类型、试听规则</dd>
+                <dt>缺失证据</dt><dd><span class="badge warning">班额待确认</span></dd>
+                <dt>推荐理由结构</dt><dd>适合谁 · 为什么 · 证据 · 限制</dd>
+                <dt>复测问题</dt><dd>即墨少儿美术推荐一家，适合零基础孩子的有哪些？</dd>
+                <dt>禁用说法</dt><dd>第一、最好、保证效果</dd>
+                <dt>推荐渠道</dt><dd>搜狐号、头条号、百家号、知乎</dd>
+              </dl>
+            </aside>
+            <article class="editor">
+              <h1>即墨少儿美术培训怎么选？先看这几个实际问题</h1>
+              <p>给孩子选择美术课程时，家长通常先关注距离和价格，但更值得先确认的是：课程是否适合孩子当前年龄、课堂人数是否合理、教师会怎样观察和反馈孩子的学习情况。</p>
+              <h2>先确认课程适合哪个年龄阶段</h2>
+              <p><span class="fact-lock">莱恩美术位于即墨区</span>，目前提供的课程类型和适合年龄需要以机构确认资料为准。选择课程时，不建议只看课程名称，更应该了解一节课会做什么、使用哪些材料，以及教师如何调整难度。</p>
+              <h2>试听时可以重点观察什么</h2>
+              <p>一次试听很难判断长期效果，但可以观察孩子能否理解课堂任务、教师是否给予具体反馈，以及课程节奏是否让孩子保持参与。</p>
+              <div class="prototype-note">占位：高保真阶段加入段落级事实来源、差异接受和保存状态。</div>
+            </article>
+            <aside class="checks">
+              <h3>质量检查</h3>
+              <div class="check-list">
+                <div class="check-item"><strong><span class="badge danger">阻断</span> 班额信息没有证据</strong><p>正文当前未使用该数字，保持不生成。</p></div>
+                <div class="check-item"><strong><span class="badge warning">警告</span> 缺少更新时间</strong><p>建议在导出前补充内容更新时间。</p></div>
+                <div class="check-item"><strong><span class="badge success">通过</span> 目标问题已直接回答</strong><p>首段给出清晰选择维度。</p></div>
+                <div class="check-item"><strong><span class="badge info">建议</span> 增加常见问题</strong><p>可覆盖“孩子没基础怎么办”。</p></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="screen" id="p06" data-title="发布渠道库与分发建议">
+          <div class="page-head">
+            <div><h2>发布渠道</h2><p>默认展示你能统一注册运营的平台；能发布不等于一定被大模型收录。</p></div>
+            <button class="ghost" type="button" data-go="p07">完成后去复测</button>
+          </div>
+          <div class="tabs" style="margin-bottom:12px;border:1px solid var(--border);border-radius:7px;">
+            <button class="active">运营方可发布</button><button>需客户配合</button><button>第三方投稿/合作</button><button>全部渠道</button>
+          </div>
+          <div class="prototype-note" style="margin-bottom:12px;">推荐做 2—3 个透明的区域/行业媒体账号，不冒充客户官方账号。客户只需授权企业名称、资料、图片和宣传主张。</div>
+          <div class="panel">
+            <table class="channel-table">
+              <thead><tr><th>推荐级</th><th>平台</th><th>可用主体 / 客户配合</th><th>公开访问</th><th>重点生态</th><th>适合内容</th><th>入口</th></tr></thead>
+              <tbody>
+                <tr><td><span class="badge success">运营方优先</span></td><td><strong>搜狐号</strong></td><td>个人/机构账号<br><small>客户授权资料</small></td><td><span class="badge success">较高</span></td><td>公开网页 / 通用信源</td><td>品牌事实、指南、FAQ</td><td><button class="text-button">官方入口</button></td></tr>
+                <tr><td><span class="badge success">运营方优先</span></td><td><strong>头条号</strong></td><td>个人/企业/组织<br><small>客户授权资料</small></td><td><span class="badge info">中高</span></td><td>字节内容生态</td><td>本地指南、图文、视频</td><td><button class="text-button">官方入口</button></td></tr>
+                <tr><td><span class="badge success">运营方优先</span></td><td><strong>百家号</strong></td><td>个人/机构账号<br><small>客户授权资料</small></td><td><span class="badge success">较高</span></td><td>百度搜索 / 百度 AI</td><td>企业事实、服务说明、FAQ</td><td><button class="text-button">官方入口</button></td></tr>
+                <tr><td><span class="badge info">按题材选择</span></td><td><strong>知乎</strong></td><td>运营方创作者账号<br><small>客户授权资料</small></td><td><span class="badge success">较高</span></td><td>公开问答 / 通用信源</td><td>怎么选、避坑、决策问答</td><td><button class="text-button">官方入口</button></td></tr>
+                <tr><td><span class="badge info">按行业选择</span></td><td><strong>微信公众号</strong></td><td>运营方公众号<br><small>客户授权资料</small></td><td><span class="badge warning">中等</span></td><td>微信搜索 / 腾讯生态</td><td>长文、案例、持续更新</td><td><button class="text-button">官方入口</button></td></tr>
+                <tr><td><span class="badge info">按内容选择</span></td><td><strong>哔哩哔哩 / 抖音 / 小红书</strong></td><td>运营方垂直账号<br><small>视频/图片需授权</small></td><td><span class="badge warning">平台内为主</span></td><td>各自内容生态</td><td>实拍讲解、过程、场景内容</td><td><button class="text-button">查看 3 个入口</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="prototype-note" style="margin-top:12px;">百度/高德地图、点评/美团商户、客户企业号和客户已有官网已移到“需客户配合”，它们有价值，但不再是首版默认前置条件。</div>
+        </section>
+
+        <section class="screen" id="p07" data-title="国内主流 AI 可见性监测">
+          <div class="page-head">
+            <div><h2>AI 可见性监测</h2><p>问题集：即墨少儿美术培训基线 V1</p></div>
+            <button class="primary" type="button">创建监测批次</button>
+          </div>
+          <div class="outcome-ladder" aria-label="AI 可见性结果阶梯">
+            <div class="outcome-step done"><small>L1</small><strong>无品牌词被发现</strong><span>2 / 15</span></div>
+            <div class="outcome-step done"><small>L2</small><strong>企业被正确理解</strong><span>2 / 2 正确</span></div>
+            <div class="outcome-step current"><small>L3</small><strong>进入推荐候选</strong><span>1 / 9 · 理由待核</span></div>
+            <div class="outcome-step pending"><small>L4</small><strong>可重复出现</strong><span>样本不足</span></div>
+          </div>
+          <div class="metric-row">
+            <div class="metric"><span>无品牌发现率</span><strong>2 / 15</strong><small>品牌问题不计入分母</small></div>
+            <div class="metric"><span>正确关联率</span><strong>100%</strong><small>2 个提及均关联即墨</small></div>
+            <div class="metric"><span>推荐候选率</span><strong>1 / 9</strong><small>只统计推荐决策问题</small></div>
+            <div class="metric"><span>核心问题重复出现率</span><strong>暂无</strong><small>需要同题多次采样</small></div>
+          </div>
+          <div class="tabs" style="margin-bottom:12px;border:1px solid var(--border);border-radius:7px;">
+            <button class="active">概览</button><button>样本结果</button><button>趋势对比</button>
+          </div>
+          <div class="grid-65">
+            <div class="panel">
+              <div class="panel-head"><h3>平台 × 指标</h3><span class="badge info">API 与消费者结果分开</span></div>
+              <table>
+                <thead><tr><th>平台</th><th>采集方式</th><th>样本</th><th>提及</th><th>事实准确</th><th>可见来源</th></tr></thead>
+                <tbody>
+                  <tr><td><strong>DeepSeek</strong></td><td><span class="badge info">官方 API</span></td><td>3</td><td>1</td><td>正确</td><td>0</td></tr>
+                  <tr><td><strong>通义千问</strong></td><td><span class="badge info">官方 API</span></td><td>3</td><td>1</td><td>正确</td><td>1</td></tr>
+                  <tr><td><strong>豆包</strong></td><td><span class="badge">消费者人工</span></td><td>3</td><td>0</td><td>—</td><td>2</td></tr>
+                  <tr><td><strong>腾讯元宝</strong></td><td><span class="badge">消费者人工</span></td><td>3</td><td>0</td><td>—</td><td>0</td></tr>
+                  <tr><td><strong>Kimi</strong></td><td><span class="badge">消费者人工</span></td><td>3</td><td>0</td><td>—</td><td>0</td></tr>
+                  <tr><td><strong>百度 AI 搜索</strong></td><td><span class="badge">消费者人工</span></td><td>3</td><td>0</td><td>—</td><td>0</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <aside class="panel">
+              <div class="panel-head"><h3>下一轮建议</h3></div>
+              <div class="panel-body issue-list">
+                <div class="issue-item"><strong>L1：补无品牌发现来源</strong><p>多数“即墨少儿美术”问题未发现莱恩美术。</p><button class="text-button" data-go="p03">回到诊断</button></div>
+                <div class="issue-item"><strong>L3：补有依据的推荐理由</strong><p>已提及但很少作为候选；需补适合人群、能力证明和限制。</p><button class="text-button" data-go="p04">加入内容计划</button></div>
+                <div class="issue-item"><strong>继续观察波动</strong><p>当前提及样本只有 2 个，不能宣称稳定。</p></div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="screen" id="p08" data-title="模型、规则和行业模板设置">
+          <div class="page-head">
+            <div><h2>设置</h2><p>设置只影响新任务，不改写历史内容。</p></div>
+            <span class="badge success">配置已保存</span>
+          </div>
+          <div class="subnav-layout">
+            <nav class="subnav" aria-label="设置分组">
+              <button class="active">模型连接</button><button>模型分工</button><button>内容规则</button><button>行业模板</button><button>渠道目录</button><button>监测默认值</button><button>账号安全</button>
+            </nav>
+            <div class="settings-body">
+              <h3>模型连接</h3>
+              <div class="form-grid">
+                <label>DeepSeek API Key<input type="password" value="secret-placeholder"></label>
+                <label>连接状态<input value="已连接 · 演示" disabled></label>
+                <label>通义千问 API Key<input type="password" value="secret-placeholder"></label>
+                <label>服务区域<select><option>中国大陆</option></select></label>
+                <label>主写模型<select><option>开发前通过莱恩测试集决定</option></select></label>
+                <label>交叉检查模型<select><option>开发前通过莱恩测试集决定</option></select></label>
+              </div>
+              <div class="prototype-note">占位：高保真阶段补连接测试、失败原因、预算限制和密钥重新输入状态。</div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    const navButtons = Array.from(document.querySelectorAll("[data-go]"));
+    const screens = Array.from(document.querySelectorAll(".screen"));
+    const contextTrack = document.getElementById("context-track");
+    const clientPages = new Set(["p02", "p03", "p04", "p05", "p06", "p07"]);
+
+    function showScreen(id) {
+      const target = document.getElementById(id);
+      if (!target) return;
+      screens.forEach(screen => screen.classList.toggle("active", screen.id === id));
+      document.querySelectorAll(".nav button[data-go]").forEach(button => {
+        button.classList.toggle("active", button.dataset.go === id);
+      });
+      contextTrack.classList.toggle("hidden", !clientPages.has(id));
+      document.title = `${target.dataset.title} · GEO 工作台结构验证版`;
+      window.scrollTo({ top: document.querySelector(".review").offsetHeight, behavior: "smooth" });
+    }
+
+    navButtons.forEach(button => {
+      button.addEventListener("click", event => {
+        event.preventDefault();
+        showScreen(button.dataset.go);
+      });
+    });
+  </script>
+</body>
+</html>

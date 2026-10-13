@@ -1,0 +1,28 @@
+{
+  "name": "geo-saas",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": ">=10 <11"
+  },
+  "pnpm": {
+    "overrides": {
+      "js-beautify": "2.0.3",
+      "brace-expansion": "5.0.8",
+      "nanoid": "3.3.17"
+    }
+  },
+  "scripts": {
+    "test:structure": "node --test scripts/workspace.test.mjs",
+    "test:unit": "pnpm test:structure && pnpm --dir frontend test:unit && uv run --project backend pytest -c backend/pyproject.toml backend/tests",
+    "test:coverage": "uv run --project backend python scripts/verify_backend_coverage.py",
+    "format:check": "pnpm --dir frontend format:check && uv run --project backend ruff format --check backend/app backend/tests backend/migrations",
+    "lint": "pnpm --dir frontend lint && uv run --project backend ruff check backend/app backend/tests backend/migrations",
+    "typecheck": "pnpm --dir frontend typecheck && uv run --project backend mypy backend/app",
+    "build": "pnpm --dir frontend build && uv run --project backend python -m compileall -q backend/app",
+    "compose:check": "docker compose --env-file .env.example config --quiet",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test:unit && pnpm build && pnpm compose:check"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "task": "T-073",
+  "protected_files_unchanged": 251,
+  "historical_tasks_unchanged": 65,
+  "open_business_tasks": 39,
+  "valid_local_links": 62,
+  "ignored_examples": 11,
+  "kept_examples": 7,
+  "standalone_git": true,
+  "no_commits_or_staging_or_remotes": true,
+  "changed_paths": [
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".ecc-v2.json",
+    ".gitignore",
+    "README.md",
+    ".cursor/rules/00-ecc-v2-project.mdc",
+    ".cursor/rules/00-project.mdc",
+    ".gitattributes",
+    "compose.dev.yaml",
+    "backend/.env.example",
+    "frontend/.env.example",
+    "docs/handoff/HANDOFF.md",
+    "docs/handoff/OPEN-TASKS.md"
+  ],
+  "diff": ".sdd/temp/T-073-change.diff",
+  "powershell_blocks_valid": 15,
+  "reviewer_proxy_documentation_fix": true
+}

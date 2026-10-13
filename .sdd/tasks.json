@@ -1,0 +1,1730 @@
+{
+  "schema_version": 2,
+  "project_id": "geo-saas",
+  "tasks": [
+    {
+      "id": "T-001",
+      "title": "仅 Web 的全栈工程与测试基线",
+      "type": "infrastructure",
+      "description": "建立 Vue 3 Web、FastAPI、PostgreSQL、Worker、Docker Compose、统一配置、日志、健康检查和测试骨架；不创建小程序、桌面安装包或原生 App。",
+      "acceptanceCriteria": [
+        "Web、API、Worker 与 PostgreSQL 可按 README 在本机启动，/api/v1/health/live 和 /api/v1/health/ready 返回契约格式",
+        "根目录具有锁定依赖、环境变量示例、数据库迁移、统一检查脚本和无真实密钥的安全默认值",
+        "项目只包含 Web 客户端，已确认原型只作为视觉参考而不是生产源码"
+      ],
+      "technicalChecks": [
+        "pnpm install --frozen-lockfile",
+        "pnpm check",
+        "uv sync --project backend --frozen",
+        "uv run --project backend pytest -c backend/pyproject.toml backend/tests",
+        "docker compose --env-file .env.example config --quiet",
+        "node ../../scripts/ecc-v2.js doctor"
+      ],
+      "dependencies": [],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-001-2026-07-27.md"
+    },
+    {
+      "id": "T-002",
+      "title": "Web 设计系统、应用外壳与 P00/P01 Mock",
+      "type": "frontend",
+      "description": "按确认原型实现 Vue 应用外壳、墨绿色设计令牌、共享状态组件、负责人登录页和客户工作台，数据严格来自 API 契约 Mock。",
+      "acceptanceCriteria": [
+        "P00/P01 的布局、文案、加载、空白、错误、成功、客户切换和未保存保护符合原型与 Design Spec",
+        "路由、Session Mock、当前客户状态、查询参数和键盘操作可用",
+        "窗口低于 768px 时提示使用桌面浏览器，不生成其他客户端体验"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend format:check",
+        "pnpm --dir frontend lint",
+        "pnpm --dir frontend typecheck",
+        "pnpm --dir frontend test:unit",
+        "pnpm --dir frontend build"
+      ],
+      "dependencies": [
+        "T-001"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-002-2026-07-27.md"
+    },
+    {
+      "id": "T-003",
+      "title": "P02 企业知识库与 P03 GEO 诊断 Mock",
+      "type": "frontend",
+      "description": "实现资料上传、任务进度、事实、证据、冲突、授权、禁用说法、L1—L4 和可解释诊断的 Web 页面及完整状态。",
+      "acceptanceCriteria": [
+        "候选事实与已确认事实在界面上清晰区分，证据与授权可展开查看",
+        "诊断的每个维度和问题都能显示依据、目标结果与下一页面动作",
+        "平台失败、事实不足、冲突和阻断状态不会伪装成成功"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend test:unit --run",
+        "pnpm --dir frontend typecheck",
+        "pnpm --dir frontend build",
+        "Playwright P02/P03 Mock 旅程通过"
+      ],
+      "dependencies": [
+        "T-002"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-003-2026-07-27.md"
+    },
+    {
+      "id": "T-004",
+      "title": "P04 内容计划与 P05 内容工作台 Mock",
+      "type": "frontend",
+      "description": "实现五类问题、关键词、主题集群、内容简报、编辑器、事实来源侧栏、质量检查、版本差异和导出任务状态。",
+      "acceptanceCriteria": [
+        "关键词和问题显示来源、目标级别、优先级并支持编辑与锁定",
+        "内容生成不会静默覆盖正文，质量阻断会禁止导出并可跳回事实",
+        "内容工作台复现原型的信息密度、三栏层级和窄窗口抽屉行为"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend test:unit --run",
+        "pnpm --dir frontend typecheck",
+        "pnpm --dir frontend build",
+        "Playwright P04/P05 Mock 旅程通过"
+      ],
+      "dependencies": [
+        "T-003"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-004-2026-07-27.md"
+    },
+    {
+      "id": "T-005",
+      "title": "P06 渠道、P07 监测、P08 设置 Mock 与 Web UI 门禁",
+      "type": "frontend",
+      "description": "完成渠道建议、国内主流 AI 监测、模型与目录设置页面，形成九页可点击生产前端 Mock，并提交用户 Web UI 验收。",
+      "acceptanceCriteria": [
+        "渠道页区分运营方可发布、客户配合、合作渠道，展示官方入口、费用、适合内容与风险且没有自动发布操作",
+        "监测页区分 API 与消费者端人工样本、失败与未提及，设置页密钥只显示掩码",
+        "P00—P08 在 1440、1280、1024 宽度完成视觉和交互验收"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend check",
+        "pnpm --dir frontend test:e2e --project=chromium",
+        "关键页面 Playwright 视觉截图差异在批准阈值内",
+        "axe 自动可访问性严重问题为 0"
+      ],
+      "dependencies": [
+        "T-004"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-005-2026-07-27.md"
+    },
+    {
+      "id": "T-006",
+      "title": "真实认证、客户与工作台闭环",
+      "type": "feature",
+      "description": "实现单负责人 Argon2id 登录、Session、CSRF、密码管理、客户生命周期和工作台接口，并把 P00/P01 从 Mock 切换到真实 API。",
+      "acceptanceCriteria": [
+        "登录、退出、会话过期、改密、创建、编辑、暂停、归档和恢复客户均可从 Web 完成",
+        "系统不存在注册、多角色、邀请、客户登录和 OAuth 界面或接口",
+        "跨客户资源返回 404，版本冲突给出可恢复提示"
+      ],
+      "technicalChecks": [
+        "uv run --project backend pytest -m 'unit or integration' tests/auth tests/clients",
+        "pnpm --dir frontend test:unit --run",
+        "VITE_USE_MOCK=false 的 P00/P01 Playwright 通过",
+        "认证、CSRF、限流和越权安全测试通过"
+      ],
+      "dependencies": [
+        "T-005"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-006-2026-07-27.md"
+    },
+    {
+      "id": "T-007",
+      "title": "资料解析、事实证据与知识库闭环",
+      "type": "feature",
+      "description": "实现受保护文件存储、本地解析/OCR 适配、后台任务、事实、证据、冲突、服务能力、禁用说法和授权，并切换 P02 到真实 API。",
+      "acceptanceCriteria": [
+        "支持 PDF、DOCX、XLSX、TXT、PNG、JPG 的安全上传、提取失败保留原文件并允许手工录入",
+        "候选事实必须经负责人确认，冲突、私密与未授权材料不能进入内容生成上下文",
+        "家政和维修客户不出现少儿美术专用通用必填字段"
+      ],
+      "technicalChecks": [
+        "uv run --project backend pytest tests/knowledge tests/jobs tests/storage",
+        "文件签名、体积、路径穿越、提示词注入与跨客户测试通过",
+        "VITE_USE_MOCK=false 的 P02 Playwright 通过",
+        "Worker 中断与幂等重试集成测试通过"
+      ],
+      "dependencies": [
+        "T-006"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-007-2026-07-27.md"
+    },
+    {
+      "id": "T-008",
+      "title": "GEO 诊断、问题关键词与内容计划闭环",
+      "type": "feature",
+      "description": "实现可解释 L1—L4 诊断、五类问题、关键词、主题集群、优先级、人工锁定和内容简报，并切换 P03/P04 到真实 API。",
+      "acceptanceCriteria": [
+        "事实不足时明确阻断并跳回 P02，补齐后可生成诊断和策略",
+        "所有问题、关键词和优先级显示来源与依据，不伪造搜索量、竞争度或平台收录",
+        "锁定的人工内容重新生成后保持不变"
+      ],
+      "technicalChecks": [
+        "uv run --project backend pytest tests/diagnostics tests/strategy",
+        "莱恩美术、家政、维修金标规则测试通过",
+        "VITE_USE_MOCK=false 的 P03/P04 Playwright 通过",
+        "评分边界、重复生成和乐观锁测试通过"
+      ],
+      "dependencies": [
+        "T-007"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-008-2026-07-27.md"
+    },
+    {
+      "id": "T-009",
+      "title": "模型 Provider、密钥与预算设置",
+      "type": "feature",
+      "description": "实现千问和 DeepSeek 的服务端 Provider、加密密钥、连接测试、结构化输出校验、预算、用量、超时和双向降级，完成 P08 模型设置真实联调。",
+      "acceptanceCriteria": [
+        "千问 qwen3.7-plus 非思考模式可做结构化任务，DeepSeek V4 Pro 可复核，V4 Flash 可降级",
+        "密钥只写不读且不进入浏览器存储、日志、错误、文档和测试证据",
+        "无真实 Key 时只标记 Mock/降级，不能显示真实联调通过"
+      ],
+      "technicalChecks": [
+        "uv run --project backend pytest tests/providers tests/settings",
+        "Schema 无效、429、超时、双方不可用与预算 80/100% 测试通过",
+        "bandit -r backend/app",
+        "有测试 Key 时执行受控 Provider 冒烟，无 Key 时记录未执行"
+      ],
+      "dependencies": [
+        "T-008"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-009-2026-07-27.md"
+    },
+    {
+      "id": "T-010",
+      "title": "双模型内容、检查、版本与导出闭环",
+      "type": "feature",
+      "description": "实现事实快照、提纲、主稿、独立复核、GEO 优化、中文自然化、质量阻断、渠道变体、不可变版本、Markdown/DOCX 导出，并切换 P05 到真实 API。",
+      "acceptanceCriteria": [
+        "每次生成只使用当前客户已授权事实，模型输出记录精确模型、模板、事实快照、用量与降级原因",
+        "自然化不改变锁定事实、不虚构经历，阻断事实错误未修复时不能导出",
+        "人工编辑、优化和恢复均创建新版本，历史版本可追溯"
+      ],
+      "technicalChecks": [
+        "uv run --project backend pytest tests/content tests/exports",
+        "莱恩美术金标集中锁定事实改写和阻断错误漏检均为 0",
+        "VITE_USE_MOCK=false 的 P05 Playwright 通过",
+        "Markdown/DOCX 内容与来源完整性测试通过"
+      ],
+      "dependencies": [
+        "T-009"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-010-2026-07-27.md"
+    },
+    {
+      "id": "T-011",
+      "title": "发布渠道目录与推荐闭环",
+      "type": "feature",
+      "description": "实现版本化渠道目录、规则匹配、推荐理由、费用、授权要求、官方链接和客户建议，并切换 P06 到真实 API。",
+      "acceptanceCriteria": [
+        "优先推荐运营方可统一注册发布的平台，同时明确客户配合和合作渠道",
+        "系统只提供建议、复制和官方入口，不存在自动发布、定时发布、发布凭证或链接回填",
+        "任何渠道说明都不承诺被大模型收录、引用或推荐"
+      ],
+      "technicalChecks": [
+        "uv run --project backend pytest tests/channels",
+        "渠道规则、目录版本和失效链接状态测试通过",
+        "VITE_USE_MOCK=false 的 P06 Playwright 通过",
+        "API 路由审计确认不存在发布接口"
+      ],
+      "dependencies": [
+        "T-010"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-011-2026-07-28.md"
+    },
+    {
+      "id": "T-012",
+      "title": "国内主流 AI 可见性监测闭环",
+      "type": "feature",
+      "description": "实现平台目录、冻结问题集、DeepSeek/千问 API 批次、其他平台人工粘贴样本、自动评估、人工修正、指标和失败转动作，并切换 P07/P08 目录到真实 API。",
+      "acceptanceCriteria": [
+        "P0/P1 国内平台均可进入目录，DeepSeek/千问标记 API，其他平台标记消费者端人工采集",
+        "失败样本、未执行与已执行未提及严格区分，指标显示样本数和时间范围",
+        "可从未发现、错误关联、未推荐或事实错误生成下一轮资料/内容/采样动作"
+      ],
+      "technicalChecks": [
+        "uv run --project backend pytest tests/monitoring",
+        "发现率、正确关联率、推荐率、事实准确率和重复出现率金标计算通过",
+        "VITE_USE_MOCK=false 的 P07/P08 Playwright 通过",
+        "API 与人工样本混淆、失败计入未提及的回归测试通过"
+      ],
+      "dependencies": [
+        "T-011"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-012-2026-07-28.md"
+    },
+    {
+      "id": "T-013",
+      "title": "全系统安全、性能、备份与可部署包",
+      "type": "hardening",
+      "description": "完成 OpenAPI 契约比对、全系统安全加固、可观测性、容量测试、备份恢复、Caddy/Compose 可部署包和回滚演练；不执行生产部署。",
+      "acceptanceCriteria": [
+        "当前 66 个接口的 OpenAPI 与 api-contracts.md 一致，Mock 可整体关闭",
+        "高危和严重安全问题为 0，跨客户、CSRF、上传、Secret、XSS 与日志脱敏验证通过",
+        "备份恢复、上一镜像回滚、目标容量和 Edge/Chromium 冒烟通过"
+      ],
+      "technicalChecks": [
+        "pnpm check",
+        "uv run --project backend pytest --cov=app --cov-report=term-missing",
+        "pnpm --dir frontend test:e2e",
+        "bandit -r backend/app",
+        "docker compose build",
+        "备份恢复哈希对比与 ECC_V2 doctor 通过"
+      ],
+      "dependencies": [
+        "T-012"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-013-independent-test.md"
+    },
+    {
+      "id": "T-014",
+      "title": "独立 Tester 与产品业务验收",
+      "type": "acceptance",
+      "description": "由独立 Tester 执行莱恩美术完整旅程、家政/维修通用性、安全、异常恢复和浏览器验收，再由 Product Manager 核对 V1 业务边界与交付文档。",
+      "acceptanceCriteria": [
+        "Tester 独立出具每项接受标准和命令证据，Developer 没有自行把任务标记通过",
+        "产品负责人可从 Web 完成客户建档、策略、内容、渠道建议和多平台监测闭环",
+        "确认仅 Web、单负责人、客户不登录、无审核流、无自动发布、无链接截图回填、无结果保证"
+      ],
+      "technicalChecks": [
+        "全部 T-001 至 T-013 Tester 报告为 passed",
+        "Release-Checklist 中生产授权之外的项目全部通过",
+        "ECC_V2 doctor 无不一致",
+        "生产部署保持未执行，除非产品负责人另行明确授权"
+      ],
+      "dependencies": [
+        "T-013"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": null
+    },
+    {
+      "id": "T-015",
+      "title": "AI 文章生产流程与文章列表",
+      "type": "frontend",
+      "description": "把 P05 调整为 AI 负责生成初稿、运营人员只在生成后编辑，并增加文章列表、生成依据和 GEO 内容结构展示。",
+      "acceptanceCriteria": [
+        "P05 展示文章列表，默认正文来自 AI 生成且不存在新建空白人工草稿入口",
+        "AI 生成新文章会显示生成状态并在完成后加入列表，生成后正文可编辑保存",
+        "文章明确关联企业事实、关键词、目标问题、GEO 优化建议和渠道适配，不承诺平台收录或推荐"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend format:check",
+        "pnpm --dir frontend lint",
+        "pnpm --dir frontend typecheck",
+        "pnpm --dir frontend test:e2e:t004",
+        "pnpm --dir frontend build"
+      ],
+      "dependencies": [
+        "T-004"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-015-2026-07-27.md"
+    },
+    {
+      "id": "T-016",
+      "title": "全站明亮视觉与弹窗体验重构",
+      "type": "frontend",
+      "description": "统一升级全站为明亮的代运营工作台视觉，并重构所有弹窗的尺寸、层级、间距、滚动和操作体验；不改变业务流程与后端接口。",
+      "acceptanceCriteria": [
+        "全部业务页面使用雾白工作区、白色侧栏与浅色内容面板，Logo、图标、主按钮和选中态使用明亮蓝色，绿色只保留给业务结果",
+        "所有弹窗具有统一正文内边距、标题与操作层级，长内容可滚动且无大块无意义空白",
+        "证据与授权弹窗首屏清楚展示事实、状态、主操作与证据",
+        "1440、1280、1024 桌面宽度无横向溢出且键盘焦点清晰"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend format:check",
+        "pnpm --dir frontend lint",
+        "pnpm --dir frontend typecheck",
+        "pnpm --dir frontend test:unit",
+        "pnpm --dir frontend build",
+        "关键页面与全部弹窗浏览器视觉回归通过"
+      ],
+      "dependencies": [
+        "T-015"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": null
+    },
+    {
+      "id": "T-017",
+      "title": "客户列表与任务操作融合",
+      "type": "frontend",
+      "description": "移除右侧独立下一步面板，把 GEO 进度、阻断和当前任务融合到客户列表，增加查看、编辑和可恢复删除操作，并固定左侧主导航。",
+      "acceptanceCriteria": [
+        "客户列表每行展示企业、资料完整度、当前和目标 L 级、阻断、下一步任务与状态",
+        "操作栏包含查看、编辑和删除，删除采用现有归档能力并明确可恢复",
+        "查看和编辑使用统一弹窗，下一步任务可以直接进入对应工作区",
+        "左侧主导航固定在视口中，右侧页面滚动时 Logo 和导航位置不变",
+        "1440、1280、1024 桌面宽度无页面级横向溢出"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend format:check",
+        "pnpm --dir frontend lint",
+        "pnpm --dir frontend typecheck",
+        "pnpm --dir frontend test:unit",
+        "pnpm --dir frontend build",
+        "客户列表真实浏览器回归通过"
+      ],
+      "dependencies": [
+        "T-016"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-017-2026-07-28.md"
+    },
+    {
+      "id": "T-018",
+      "title": "企业知识库直接管理与简化资料模板",
+      "type": "feature",
+      "description": "把企业知识库从审核工作流改为单人代运营的直接管理页面，提供简化客户资料模板、资料导入和知识条目新增更新；录入信息默认进入后续 GEO 与 AI 内容上下文。",
+      "acceptanceCriteria": [
+        "页面只保留知识库概览、模板下载、资料导入、资料状态和知识条目管理，不展示授权、审核、冲突、缺失、禁用说法或行业知识档案",
+        "客户资料模板为单工作表，只包含企业基本信息、服务经营、企业特点、真实经验和联系方式",
+        "运营人员可以搜索、筛选、新增和编辑企业知识条目，保存后无需二次审核即可供诊断和内容生成使用",
+        "private、conflict、未生效和过期条目仍不会进入内容上下文",
+        "1024、1280、1440 桌面宽度无横向溢出，模板下载和编辑弹窗真实可用"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend check",
+        "uv run --project backend pytest -c backend/pyproject.toml backend/tests/knowledge backend/tests/diagnostics backend/tests/strategy backend/tests/content",
+        "模板工作簿结构、公式错误扫描和视觉渲染通过",
+        "真实浏览器模板下载、知识编辑与三档桌面宽度检查通过",
+        "独立 Reviewer、Tester 和 Product Manager 验收通过"
+      ],
+      "dependencies": [
+        "T-017"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-018-2026-07-28.md"
+    },
+    {
+      "id": "T-019",
+      "title": "删除企业知识库重复模板下载入口",
+      "type": "bugfix",
+      "description": "删除企业知识库标题区右上角的重复模板下载按钮，只保留资料导入区域内的入口。",
+      "acceptanceCriteria": [
+        "企业知识库页面只显示一个下载客户资料模板入口",
+        "唯一入口位于资料导入区域并保持正确下载地址与 download 属性"
+      ],
+      "technicalChecks": [
+        "pnpm --dir frontend test:unit --run",
+        "pnpm --dir frontend typecheck",
+        "pnpm --dir frontend build",
+        "独立 Reviewer 与 Tester 验证通过"
+      ],
+      "dependencies": [
+        "T-018"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-019-2026-07-28.md"
+    },
+    {
+      "id": "T-020",
+      "title": "修复旧 Worker 造成的模板知识分类异常",
+      "type": "bugfix",
+      "description": "重启本地 API 与 Worker，并把青岛莱恩美术教育模板产生的 21 条错误服务分类修正为结构化企业知识。",
+      "acceptanceCriteria": [
+        "目标客户 21 条知识均与原始资料一致，Fact ID、Evidence ID 和来源关系保持不变",
+        "企业、地区、服务、受众、价格、流程、能力、联系和补充信息按字段正确分类",
+        "规范知识 key 无重复，核心服务、服务对象和实际服务范围可被诊断读取",
+        "API 与 Worker 使用最新代码启动并通过健康检查",
+        "真实页面不再把全部知识显示为服务产品"
+      ],
+      "technicalChecks": [
+        "数据库迁移前置条件与更新行数均严格校验为 21",
+        "目标客户分类、规范 key、事实值哈希和证据关系复验",
+        "API live/ready 与 Worker heartbeat 通过",
+        "知识库、诊断和内容相关回归测试通过",
+        "独立 Reviewer 与 Tester 验证通过"
+      ],
+      "dependencies": [
+        "T-018"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-020-2026-07-28.md"
+    },
+    {
+      "id": "T-021",
+      "title": "GEO 诊断与下游页面同步",
+      "type": "feature",
+      "description": "让诊断识别知识快照过期，基于当前事实、内容、来源和真实监测计算结果，并同步关键词、内容和渠道页面。",
+      "acceptanceCriteria": [
+        "诊断 API 返回快照过期状态和变化数量，知识变化后页面明确要求重新诊断",
+        "五维结果读取真实事实、资料依据、内容库存、公开来源和 AI 监测，无数据时不伪造 0 分",
+        "L1—L4 只基于真实成功监测样本计算，无样本保持 L0",
+        "P03、P04、P05、P06 对过期诊断的展示和生成限制一致",
+        "历史诊断、策略和文章保留，不自动覆盖"
+      ],
+      "technicalChecks": [
+        "受影响的 diagnostics、strategy、channels 后端测试通过",
+        "前端相关单元测试通过",
+        "前端类型检查与构建通过",
+        "独立 Tester 验收通过"
+      ],
+      "dependencies": [
+        "T-020"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-021-2026-07-28.md"
+    },
+    {
+      "id": "T-022",
+      "title": "简化 GEO 诊断、关键词与内容生产闭环",
+      "type": "feature",
+      "description": "把复杂诊断与内容计划重构为 AI 平台表现评分、可多选关键词列表和批量文章管理。",
+      "acceptanceCriteria": [
+        "GEO 诊断展示真实平台表现、100 分评分、优良中差等级、评语和 GEO 建议",
+        "未检测、检测失败和未发现严格区分，只有成功且已评估样本参与评分",
+        "关键词列表展示主关键词、长尾关键词、类型、用户意图、优先级和选中状态",
+        "关键词支持多选、编辑、软删除和批量生成内容",
+        "内容工作台支持批量配置、文章列表、查看、编辑、复制、发布标记和软删除",
+        "后台继续使用事实快照、AI 复核和质量检查约束生成内容"
+      ],
+      "technicalChecks": [
+        "诊断、监测、策略和内容后端测试通过",
+        "前端定向单元测试通过",
+        "前端类型检查与生产构建通过",
+        "可逆数据库迁移与回滚检查通过",
+        "独立 Tester 验收通过"
+      ],
+      "dependencies": [
+        "T-021"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-022-2026-07-28.md"
+    },
+    {
+      "id": "T-023",
+      "title": "修复资料完整度、诊断无样本说明与关键词模型格式兼容",
+      "type": "bugfix",
+      "description": "让资料完整度读取当前基础资料，明确无监测样本的真实含义，并兼容主流模型常见 JSON 返回变体。",
+      "acceptanceCriteria": [
+        "当前客户 21 条知识在列表和顶部摘要显示 100% 完整度",
+        "无监测样本明确显示尚未检测且不计 0 分",
+        "关键词解析兼容代码块、外层字段别名、中文分类和额外字段",
+        "遗留运行中关键词任务不再重复消费模型"
+      ],
+      "technicalChecks": [
+        "客户、诊断、策略、内容和 OpenAPI 后端回归通过",
+        "前端 lint、类型检查、单元测试和生产构建通过",
+        "真实客户列表和 GEO 诊断页面验证通过",
+        "独立 Reviewer 与 Tester 验收通过"
+      ],
+      "dependencies": [
+        "T-022"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-023-2026-07-28.md"
+    },
+    {
+      "id": "T-024",
+      "title": "修复关键词任务卡住、重复模型调用与前端等待过短",
+      "type": "bugfix",
+      "description": "让关键词任务持续跟踪真实状态、复用同参数活动任务，并确保任何解析或后台异常都进入明确终态。",
+      "acceptanceCriteria": [
+        "关键词页面以合理间隔等待最长10分钟且自动显示完成或失败",
+        "同一客户、诊断和参数的活动任务不会重复创建或重复调用模型",
+        "个别模型关键词异常不会中断整批生成",
+        "未预期后台异常会被记录并把任务标记失败",
+        "当前卡住任务恢复并生成可查看的关键词列表"
+      ],
+      "technicalChecks": [
+        "策略与任务后端回归测试通过",
+        "前端关键词轮询单元测试、lint、类型检查和构建通过",
+        "真实任务与关键词页面验证通过",
+        "独立 Reviewer 与 Tester 验收通过"
+      ],
+      "dependencies": [
+        "T-023"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-024-2026-07-28.md"
+    },
+    {
+      "id": "T-025",
+      "title": "优化文章列表对应关键词的单元格 UI",
+      "type": "bugfix",
+      "description": "修复关键词标签样式错误作用到表格单元格造成的超大灰色胶囊，改为紧凑浅蓝关键词标签。",
+      "acceptanceCriteria": [
+        "对应关键词单元格不再显示占满整格的灰色胶囊",
+        "关键词以紧凑浅蓝标签展示，长文本最多占用合理的两行",
+        "文章列表的其他列、操作和横向滚动不受影响"
+      ],
+      "technicalChecks": [
+        "前端 lint、类型检查、单元测试和生产构建通过",
+        "真实浏览器文章列表视觉与交互回归通过",
+        "独立 Reviewer 与 Tester 验证通过"
+      ],
+      "dependencies": [
+        "T-024"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-025-2026-07-28.md"
+    },
+    {
+      "id": "T-026",
+      "title": "升级标题与文章生成质量为 Content V2",
+      "type": "feature",
+      "description": "隔离内部来源标记，减少模板化、推广腔和关键词堆砌，并为同一关键词生成真正不同的内容角度。",
+      "acceptanceCriteria": [
+        "新文章不泄漏 UUID、client 标记、内部事实 ID 或来源标记",
+        "标题与正文以用户问题为中心，不默认把客户写成最佳推荐",
+        "同一关键词批量生成具有不同内容角度且不使用序号占位标题",
+        "质量检查识别关键词堆砌、推广式模板和内部标记",
+        "提示词及 GEO 收录边界可完整说明"
+      ],
+      "technicalChecks": [
+        "新增内容上下文、清理、质量和批量角度测试先红后绿",
+        "内容、策略、任务和 OpenAPI 相关后端回归通过",
+        "Ruff 通过且本地 API 与 Worker 使用最新代码",
+        "独立 Reviewer、Tester 和 Product Manager 验收通过"
+      ],
+      "dependencies": [
+        "T-025"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-026-2026-07-29.md"
+    },
+    {
+      "id": "T-027",
+      "title": "提示词中心、内容形式与渠道联系方式合规",
+      "type": "feature",
+      "description": "建立可维护、可版本化的提示词模板体系，按内容形式生成文章，并根据目标发布渠道处理手机号、微信和站外链接。",
+      "acceptanceCriteria": [
+        "内容工作台可选择内容形式或 AI 智能组合，不同形式使用不同模板",
+        "系统设置可维护业务提示词、查看变量、恢复默认和保留版本历史",
+        "关键词生成覆盖完整用户意图并推荐适合的内容形式",
+        "渠道联系方式策略可维护，生成内容按目标渠道保留或移除联系方式",
+        "文章版本可追溯内容形式、目标渠道和提示词模板版本",
+        "历史文章不被自动覆盖且不会触发真实付费模型"
+      ],
+      "technicalChecks": [
+        "提示词模板、版本、渠道合规和生成接口测试先红后绿",
+        "内容与关键词前端单元测试、类型检查和生产构建通过",
+        "内容、策略、渠道、设置和 OpenAPI 后端回归通过",
+        "数据库迁移可升级和回滚",
+        "独立 Reviewer、Tester 和 Product Manager 验收通过"
+      ],
+      "dependencies": [
+        "T-026"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-027-2026-07-29.md"
+    },
+    {
+      "id": "T-028",
+      "title": "修复 GEO 诊断监测表权限异常",
+      "type": "bugfix",
+      "description": "同步本地 PostgreSQL 运行角色的业务表权限，恢复 GEO 诊断重新计算，并保持无有效监测样本时显示未检测而非 0 分。",
+      "acceptanceCriteria": [
+        "重新计算诊断不再返回任务处理异常",
+        "最新诊断任务成功完成且进度为 100%",
+        "没有有效监测样本时平台显示未检测和空评分，不伪造 0 分",
+        "运行角色仅获得所需业务 DML 权限，不获得 DDL 或管理员权限"
+      ],
+      "technicalChecks": [
+        "diagnostics、database roles 与 health 定向回归通过",
+        "真实诊断任务与浏览器页面验证通过",
+        "运行角色权限完备性与最小权限检查通过",
+        "独立 Reviewer、Tester 和 Product Manager 验收通过"
+      ],
+      "dependencies": [
+        "T-027"
+      ],
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-028-2026-07-29.md"
+    },
+    {
+      "id": "T-029",
+      "title": "内容工作台修正闭环与渠道发布合规",
+      "type": "feature",
+      "description": "修复已选关键词仍无法生成的问题，解释并处理待修正文章，增加文章筛选、发布记录和根据运营建议 AI 重新生成，同时升级主流渠道发文规则。",
+      "acceptanceCriteria": [
+        "重新选择关键词后，只要企业资料与诊断未过期即可开始 AI 生成",
+        "待修正文章展示具体问题和建议，并可进入人工编辑或按修改建议 AI 重新生成",
+        "文章列表可按关键词、关键词类型、发布状态和适合渠道组合筛选",
+        "标记已发布作为人工发布记录可用，即使内容质量有提示也会明确风险而不隐藏外部事实",
+        "AI 重新生成保留企业事实边界，并可同时指定目标渠道",
+        "搜狐号、百家号、头条号等渠道使用经核验的保守联系方式和营销表达规则"
+      ],
+      "technicalChecks": [
+        "内容工作台筛选与生成可用性单元测试通过",
+        "内容重新生成、质量问题和发布记录后端测试通过",
+        "渠道提示词与联系方式策略测试通过",
+        "前端 lint、类型检查、单元测试和生产构建通过",
+        "真实浏览器内容工作台回归通过",
+        "独立 Reviewer、Tester 和 Product Manager 验收通过"
+      ],
+      "dependencies": [
+        "T-028"
+      ],
+      "status": "passed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-029-2026-07-29.md"
+    },
+    {
+      "id": "T-030",
+      "title": "修复内容质量检查误判已有企业事实",
+      "type": "bugfix",
+      "description": "让质量检查正确识别中文与阿拉伯数字、数量范围和常见限定词，同时保留对知识库未支持年龄分段与能力主张的阻断。",
+      "acceptanceCriteria": [
+        "知识库中的五家直营校区可支持文章中的5家直营校区",
+        "知识库中的超过3000余人可支持文章中的超过3000人",
+        "知识库未提供的4-6岁、7-12岁教学分段仍标记为待修正",
+        "待修正提示展示完整数量范围，不再只显示脱离上下文的区间终点",
+        "当前受影响文章使用新规则重新检查，历史检查记录保留"
+      ],
+      "technicalChecks": [
+        "新增数字表达兼容与年龄范围回归测试先失败后通过",
+        "内容模块定向后端测试通过",
+        "Ruff 与 mypy 通过",
+        "本地 API 与 Worker 使用最新代码并通过健康检查",
+        "真实内容工作台显示修正后的具体问题"
+      ],
+      "dependencies": [
+        "T-029"
+      ],
+      "status": "in_progress",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-030-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-031",
+      "title": "独立模型复核兼容与文章重新质检闭环",
+      "type": "bugfix",
+      "description": "兼容 DeepSeek、千问常见复核 JSON 结构，并在内容工作台提供单篇与批量重新质检，让旧文章使用最新检查规则更新结果而不改写正文。",
+      "acceptanceCriteria": [
+        "独立复核可识别直接数组、data/issues 包装、中英文字段别名和中文风险等级",
+        "无法识别的返回仍明确失败，不把不完整结果伪装为通过",
+        "单篇重新质检只追加质量检查记录，不新增或覆盖文章版本",
+        "可一键批量重新质检全部待修正文章，并显示处理进度与成功失败数量",
+        "重新质检完成后列表和详情自动刷新，真实问题继续保留",
+        "自动化验证不调用真实付费模型"
+      ],
+      "technicalChecks": [
+        "复核返回兼容单元测试通过",
+        "重新质检不改写版本的后端集成测试通过",
+        "内容工作台重新质检可用性单元测试通过",
+        "前端 lint、类型检查、单元测试和生产构建通过",
+        "Ruff、mypy 和内容模块回归通过",
+        "本地页面冒烟验证通过"
+      ],
+      "dependencies": [
+        "T-030"
+      ],
+      "status": "in_progress",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-031-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-032",
+      "title": "真实模型驱动的文章生成质量修正",
+      "type": "bugfix",
+      "description": "让文章重新生成基于安全企业事实和质量问题从零写作，统一生成与审核事实边界，并修复年龄冲突、内部 ID、数量词与关键词自然覆盖误判。",
+      "acceptanceCriteria": [
+        "重新生成不向模型提供旧正文，只使用安全企业事实、关键词、渠道、人工建议和上一版质量问题",
+        "写作与审核统一过滤高风险营销分句并对冲突年龄范围使用更保守口径",
+        "审核上下文不含 UUID、事实 ID、证据 ID 或内部来源标记",
+        "选择一家等普通指代表达不再触发数量事实阻断，真实门店数量仍受检查",
+        "关键词检查可识别少量连接词形成的自然表达且继续限制堆砌",
+        "人工修改建议随文章版本保存，后续重新质检继续使用同一要求",
+        "严格重写使用 DeepSeek 主写并对未通过候选最多自动修复两次",
+        "真实代表文章经生成后检查和隔离重新质检后均达到质量通过"
+      ],
+      "technicalChecks": [
+        "内容模块定向回归测试通过",
+        "Ruff 与 mypy 通过",
+        "API、数据库、存储和 Worker 健康检查通过",
+        "真实模型调用记录包含生成与独立质检",
+        "真实代表文章最新质量检查为 passed 且问题数为 0",
+        "内容与模型路由定向回归测试通过",
+        "前端 lint 与类型检查通过",
+        "ECC Doctor 通过"
+      ],
+      "dependencies": [
+        "T-031"
+      ],
+      "status": "in_progress",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-032-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-033",
+      "title": "打通已选关键词与首轮 AI 监测基线",
+      "type": "bugfix",
+      "description": "修复关键词页面简化后仍依赖隐藏旧问题集造成的监测断链，让监测页基于已选关键词自动建立冻结问题集并控制首轮真实模型调用规模。",
+      "acceptanceCriteria": [
+        "没有冻结问题集时，监测页可使用关键词页面已选择的关键词建立首轮问题集",
+        "首轮最多抽取5个不同意图的代表问题，并明确展示准备状态和操作入口",
+        "首轮DeepSeek与通义千问每题只采样1次，其他消费者端平台仍为人工采样占位",
+        "冻结后引用的关键词可被后续监测批次复用",
+        "旧版已锁定问题集继续兼容"
+      ],
+      "technicalChecks": [
+        "监测后端定向测试通过",
+        "监测问题抽取前端单元测试通过",
+        "Ruff、mypy、ESLint和前端类型检查通过",
+        "本地API、数据库、存储和Worker健康检查通过",
+        "独立Tester与产品验收通过"
+      ],
+      "dependencies": [
+        "T-032"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-033-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-034",
+      "title": "停止内容工作台空闲状态无限轮询",
+      "type": "bugfix",
+      "description": "把文章列表固定每2秒刷新改为仅在存在等待生成或生成中文章时轮询，避免多个标签页叠加无意义请求。",
+      "acceptanceCriteria": [
+        "没有brief或generating文章时不自动轮询文章列表",
+        "存在等待生成或生成中文章时保持2秒进度刷新",
+        "文章进入任一终态后自动停止轮询",
+        "编辑、重新生成、质检、发布和删除后的主动刷新不受影响"
+      ],
+      "technicalChecks": [
+        "内容工作台轮询条件单元测试通过",
+        "Prettier、ESLint与前端类型检查通过",
+        "本地API日志空闲观测无新增文章列表请求",
+        "独立Tester验收通过"
+      ],
+      "dependencies": [
+        "T-033"
+      ],
+      "status": "in_progress",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/T-034-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-035",
+      "title": "简化 AI 文章生成与提示词链路",
+      "type": "feature",
+      "description": "将内容生产收敛为 DeepSeek 主写、千问备用、本地轻量发布检查，并让当前提示词版本作用于后续新建与重新生成任务。",
+      "acceptanceCriteria": [
+        "DeepSeek 默认生成提纲和正文，千问只在主写不可用时接管",
+        "保存、重新检查和生成后的发布检查不再调用第二个模型",
+        "明确事实与渠道风险阻止发布，表达优化和关键词建议不阻止发布",
+        "文章形式、关键词策略、渠道规则和通用写作规则可维护并保留版本",
+        "重新生成使用当前提示词版本且历史快照保持不变",
+        "真实代表文章达到可发布且发布检查问题为0"
+      ],
+      "technicalChecks": [
+        "内容、提示词、模型路由和监测定向后端回归通过",
+        "Ruff与Mypy通过",
+        "前端格式、Lint、类型检查、单元测试和生产构建通过",
+        "本地API、数据库、存储和Worker健康检查通过",
+        "真实文章版本、模型、提示词快照和发布检查结果复验",
+        "ECC V2 doctor通过",
+        "独立Tester与产品验收通过"
+      ],
+      "dependencies": [
+        "T-034"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-035-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-036",
+      "title": "企业事实与行业通用建议分层",
+      "type": "bugfix",
+      "description": "允许文章合理补充行业常识、年龄阶段关注点和场景建议，同时继续严格约束被归因成客户课程、师资、价格、资质和效果的企业事实。",
+      "acceptanceCriteria": [
+        "通用年龄阶段建议不因知识库缺少逐段年龄事实而阻止发布",
+        "无依据的客户企业年龄分段和课程设置仍被阻止",
+        "文章生成提示词明确企业硬事实与行业通用建议边界",
+        "默认提示词升级不覆盖运营人员自定义模板",
+        "用户最新文章重新检查后不再存在年龄阶段事实阻断"
+      ],
+      "technicalChecks": [
+        "内容与提示词定向后端回归通过",
+        "Ruff与Mypy通过",
+        "本地API、数据库、存储和Worker健康检查通过",
+        "真实文章使用新规则重新检查",
+        "独立Tester与产品验收通过"
+      ],
+      "dependencies": [
+        "T-035"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-036-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-037",
+      "title": "五平台自动 GEO 诊断",
+      "type": "feature",
+      "description": "从企业知识库自动生成检测问题，固定调用 DeepSeek、豆包、腾讯元宝、通义千问和 Kimi，并使用新规则形成平台评分与 GEO 建议。",
+      "acceptanceCriteria": [
+        "开始诊断后自动生成品类发现、推荐决策和品牌核验问题，无需人工选择",
+        "平台目录和诊断页只保留 DeepSeek、豆包、腾讯元宝、通义千问和 Kimi",
+        "未配置、请求失败和无有效回答不按0分计入综合评分",
+        "单平台评分按品牌出现、正确关联、推荐命中、可核验事实和可见来源计算",
+        "旧监测入口从导航移除且旧地址跳转到GEO诊断",
+        "诊断结果展示自动问题、回答摘要、评分评语和后续GEO建议"
+      ],
+      "technicalChecks": [
+        "Provider、设置、诊断和平台目录后端定向测试通过",
+        "数据库迁移可升级并保留现有DeepSeek和千问配置",
+        "前端格式、Lint、类型检查、单元测试和生产构建通过",
+        "本地API、Worker和五平台配置状态检查通过",
+        "独立Tester与产品验收通过"
+      ],
+      "dependencies": [
+        "T-036"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-037-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-038",
+      "title": "文章自动封面图",
+      "type": "feature",
+      "description": "为每个文章版本自动生成可预览和下载的品牌化16:9 PNG封面，并在内容工作台提供三种明亮风格切换。",
+      "acceptanceCriteria": [
+        "已有正文版本的文章可生成1200×675 PNG封面",
+        "封面仅使用文章标题和公开企业信息，不泄漏内部ID、联系方式或AI生成标记",
+        "支持智慧蓝、暖阳橙、清新青三种明显不同的样式",
+        "文章详情支持封面预览、切换和下载",
+        "文章与版本归属校验正确且文件路径不能越出存储目录"
+      ],
+      "technicalChecks": [
+        "封面渲染单元测试通过",
+        "封面读取与下载API集成测试通过",
+        "OpenAPI契约测试同步通过",
+        "前端格式、Lint、类型检查、单元测试和生产构建通过",
+        "真实文章封面可预览和下载",
+        "独立Tester与产品验收通过"
+      ],
+      "dependencies": [
+        "T-037"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-038-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-039",
+      "title": "关键词语义覆盖",
+      "type": "bugfix",
+      "description": "将文章关键词相关性检查从完整字符串匹配升级为语义要素覆盖，允许地区、服务对象、业务形态和问题意图采用自然同义表达。",
+      "acceptanceCriteria": [
+        "同一语义的地区、服务对象和业务表达不再被误报",
+        "企业类型词和搜索问句后缀无需逐字复现",
+        "核心业务缺失或文章跑题时仍然提示",
+        "写作提示词不再要求完整关键词逐字出现",
+        "真实文章重新检查后移除现有误报"
+      ],
+      "technicalChecks": [
+        "先新增失败用例再实现语义匹配",
+        "内容质量定向回归通过",
+        "Ruff与Mypy定向检查通过",
+        "本地API、数据库、存储和Worker健康检查通过",
+        "独立Tester与产品验收通过"
+      ],
+      "dependencies": [
+        "T-038"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-039-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-040",
+      "title": "自然短查询生成",
+      "type": "bugfix",
+      "description": "让自动诊断问题与关键词策略从知识库提炼消费者常用的地区、核心品类和品牌短查询，不再直接拼接课程、产品、年龄和适用对象清单。",
+      "acceptanceCriteria": [
+        "地区与主营发现使用地区简称和单一核心品类",
+        "推荐决策与品牌核验采用消费者常见的短问法",
+        "课程、产品、年龄和适用对象清单不会整段进入问题或关键词",
+        "关键词 AI 提示词明确短查询规则且异常长结果会被过滤",
+        "规则适用于教育、保洁和维修等本地服务行业"
+      ],
+      "technicalChecks": [
+        "自动诊断问题与关键词策略新增自然短查询用例",
+        "诊断、策略、设置、监测与 OpenAPI 定向回归通过",
+        "Ruff 与 Mypy 通过",
+        "本地 API、数据库、存储和 Worker 健康检查通过",
+        "独立 Tester 与产品验收通过"
+      ],
+      "dependencies": [
+        "T-039"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-040-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-041",
+      "title": "头条号一键发布与渠道配置",
+      "type": "feature",
+      "description": "将文章生成状态与发布状态拆分，内容工作台按目标渠道创建外部发布任务；首版通过本机浏览器会话实现头条号图文自动发布，并将原渠道建议页改为渠道配置页。",
+      "acceptanceCriteria": [
+        "文章列表分别展示生成状态与发布状态",
+        "标记已发布改为一键发布且只对头条号目标版本开放",
+        "头条号支持打开专用登录窗口、检测连接和启停自动发布",
+        "发布任务覆盖等待发布、发布中、已发布、失败、需要登录、需要验证和平台拒绝",
+        "只有取得平台成功回执才记录已发布，登录失效或安全验证不得误报成功",
+        "其他主流发布平台仅展示即将支持，不提供无效配置按钮"
+      ],
+      "technicalChecks": [
+        "数据库迁移升级到0021",
+        "头条号配置与固定Mock发布集成测试通过",
+        "OpenAPI契约同步通过",
+        "前端类型检查、单元测试和生产构建通过",
+        "本地API、Worker和页面只读验收通过",
+        "真实头条号账号登录与首篇发布需运营人员后续验收"
+      ],
+      "dependencies": [
+        "T-040"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-041-developer-verification-2026-07-29.md"
+    },
+    {
+      "id": "T-043",
+      "title": "企业图片库与图文一键发布",
+      "type": "feature",
+      "description": "知识库增加企业图片多选上传；文章版本随机绑定最多两张企业图片，头条号一键发布时插入正文，并把文章列表的生成状态与发布状态筛选完全拆开。",
+      "acceptanceCriteria": [
+        "知识库支持多张PNG或JPG企业图片上传与预览且不触发文字提取",
+        "新生成文章随机绑定最多2张当前客户企业图片并可在详情查看",
+        "旧文章首次发布时可补选企业图片",
+        "头条号发布时将绑定图片插入正文不同段落且保留独立封面",
+        "文章列表分别按生成状态与发布状态筛选"
+      ],
+      "technicalChecks": [
+        "数据库迁移升级到0022",
+        "图片上传预览和文章图片选择测试通过",
+        "头条号正文图片位置规则测试通过",
+        "OpenAPI契约同步通过",
+        "前端类型检查、单元测试和生产构建通过",
+        "本地API、Worker和页面只读验收通过"
+      ],
+      "dependencies": [
+        "T-041"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-043-developer-verification-2026-07-30.md"
+    },
+    {
+      "id": "T-044",
+      "title": "修复头条号登录误判与封面入口识别",
+      "type": "bugfix",
+      "description": "把头条号登录检测改为稳定后二次确认，并让封面上传适配器等待异步渲染、兼容当前入口和已有封面状态。",
+      "acceptanceCriteria": [
+        "头条号页面短暂出现登录态时不会立即判定会话失效",
+        "连续多次确认仍在登录页时才返回需要重新登录",
+        "单图封面入口异步出现时可以等待并继续上传",
+        "页面已有封面时不会误报未找到上传入口",
+        "发布失败继续保留具体错误且不会误报发布成功"
+      ],
+      "technicalChecks": [
+        "先新增登录状态抖动和封面异步渲染失败用例",
+        "发布适配器与渠道配置定向测试通过",
+        "Ruff 与 Mypy 通过",
+        "本地 API、数据库、存储和 Worker 健康检查通过",
+        "真实头条号编辑页验证到最终发布按钮前"
+      ],
+      "dependencies": [
+        "T-043"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-044-developer-verification-2026-07-30.md"
+    },
+    {
+      "id": "T-045",
+      "title": "企业图片删除、实景封面与多渠道内容生成",
+      "type": "feature",
+      "description": "为企业图片库增加安全删除；文章封面优先使用已绑定企业实景图；内容工作台支持同时选择多个目标渠道并分别生成渠道适配稿。",
+      "acceptanceCriteria": [
+        "企业图片可在知识库中经确认后删除，文章版本中的对应图片引用同步清理",
+        "文章有企业图片时封面使用实景图和文章标题，不再出现GEO标识或发布前核验文案",
+        "没有企业图片时仍可生成不含内部标识的标题备选封面",
+        "批量生成目标渠道支持多选，下拉选项只显示渠道名称",
+        "选择多个渠道时为每个渠道创建独立适配稿，联系方式与外链规则在下方单独说明",
+        "单批次扩展任务不超过100篇且旧单渠道调用继续兼容"
+      ],
+      "technicalChecks": [
+        "图片删除、封面渲染、多渠道输入和OpenAPI定向测试通过",
+        "内容批量生成与发布归档集成回归通过",
+        "Ruff、Mypy、前端格式、Lint和类型检查通过",
+        "前端单元测试和生产构建通过",
+        "本地API、Worker和真实页面只读验收通过",
+        "独立Tester与产品验收通过"
+      ],
+      "dependencies": [
+        "T-044"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-045-developer-verification-2026-07-30.md"
+    },
+    {
+      "id": "T-046",
+      "title": "豆包监测收口与四平台多账号发布",
+      "type": "feature",
+      "description": "监测范围收口为 DeepSeek、通义千问和豆包；发布链路扩展为头条号、百家号、网易号、搜狐号，每个平台最多五个独立账号，内容工作台可多选账号并创建独立发布任务。客户结果报告不进入本任务。",
+      "acceptanceCriteria": [
+        "GEO诊断和监测目录只展示并调用DeepSeek、通义千问和豆包",
+        "豆包使用火山方舟官方API地址，未配置密钥时明确显示未配置且不伪造样本",
+        "头条号、百家号、网易号和搜狐号都可创建、登录、检测和启停发布账号",
+        "每个平台最多创建五个账号且每个账号使用独立浏览器资料目录",
+        "已连接账号每天自动复检一次且每次发布前再次核验登录状态",
+        "渠道配置页醒目提示即将复检、登录失效或需要验证的账号，重新登录复用原浏览器资料目录",
+        "内容工作台发布弹窗可多选平台账号并为每个账号创建独立任务",
+        "每个发布目标必须使用匹配的渠道版本，缺少版本时阻止发布并给出明确提示",
+        "验证码、安全验证、登录失效、页面结构变化和平台拒绝不会被误报为发布成功",
+        "本轮不增加客户结果报告"
+      ],
+      "technicalChecks": [
+        "数据库迁移0023和0024可升级到head",
+        "三平台监测目录与多账号上限集成测试通过",
+        "发布账号健康状态、每日巡检和发布前复检定向测试通过",
+        "内容发布任务、前端多选逻辑和固定Mock发布回归通过",
+        "Ruff、Mypy、前端类型检查、单元测试和生产构建通过",
+        "真实百家号、网易号和搜狐号仍需运营账号逐平台验收"
+      ],
+      "dependencies": [
+        "T-045"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-046-developer-verification-2026-08-04.md"
+    },
+    {
+      "id": "T-050",
+      "title": "平台低质内容与搜狐发布回读修复",
+      "type": "bugfix",
+      "description": "修复搜狐错链和公开页残缺仍报成功，并为头条号、搜狐号等资讯平台增加低质内容硬门禁。",
+      "acceptanceCriteria": [
+        "搜狐发布结果必须匹配本次文章标题，不能返回旧文章链接",
+        "搜狐公开页正文残缺、关键段落缺失或图片过多时不能标记为已发布",
+        "模板化标题、批量同义稿、过量品牌曝光和信息量不足的渠道稿必须阻止发布",
+        "所有目标渠道版本在创建发布任务前完成质量预检",
+        "平台禁言、封禁或限制发布后自动停用对应账号"
+      ],
+      "technicalChecks": [
+        "先增加搜狐精确取链、公开页回读和低质内容失败用例",
+        "发布适配器与内容API定向测试通过",
+        "Ruff与Mypy通过",
+        "本地API、Worker和业务数据纠正完成",
+        "独立Tester与产品验收通过"
+      ],
+      "dependencies": [
+        "T-046"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-050-developer-verification-2026-08-04.md"
+    },
+    {
+      "id": "T-054",
+      "title": "重新生成反馈与平台审核状态闭环",
+      "type": "bugfix",
+      "description": "补充 AI 按建议重新生成的弹窗内完成提示，并将平台提交、审核中和最终发布结果拆分，通过平台内容管理页自动复查审核结果。",
+      "acceptanceCriteria": [
+        "AI 按建议重新生成完成后在当前编辑弹窗内显示明确完成提示和新版本号",
+        "搜狐号已接收但尚未公开的文章显示平台审核中而不是发布失败",
+        "后台约每10分钟自动复查待审核文章并同步已发布链接或审核未通过原因",
+        "同账号同文章版本处于队列、发布中、审核中或已发布时不能重复提交",
+        "审核期间前端采用低频刷新且不恢复无意义的高频轮询"
+      ],
+      "technicalChecks": [
+        "先增加审核中分类和低频轮询失败用例",
+        "发布适配器、待审核同步和内容API定向回归通过",
+        "前端格式、Lint、类型检查、单元测试和生产构建通过",
+        "本地API、数据库、存储和Worker健康检查通过",
+        "真实搜狐内容管理页只读复查取得最终状态"
+      ],
+      "dependencies": [
+        "T-050"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-054-developer-verification-2026-08-04.md"
+    },
+    {
+      "id": "T-055",
+      "title": "文心一言与竞品来源证据 GEO 诊断",
+      "type": "feature",
+      "description": "GEO诊断增加文心一言，并从四平台真实回答和联网来源中提取竞品差距、来源影响信号及证据化优化建议。",
+      "acceptanceCriteria": [
+        "文心一言出现在GEO诊断和系统设置且未配置时不参与评分",
+        "千问、豆包、文心返回的真实来源按问题保存并可打开",
+        "DeepSeek无原生来源时明确标记能力限制且不伪造引用",
+        "竞品差距只依据回答提及顺序、推荐语、重复出现和来源标题",
+        "渠道影响信号展示来源次数、平台覆盖、问题覆盖、分值和置信度",
+        "GEO优化建议引用可追溯的竞品或渠道证据"
+      ],
+      "technicalChecks": [
+        "四供应商请求与来源解析单元测试通过",
+        "诊断聚合与旧JSON兼容测试通过",
+        "系统设置和诊断API集成测试通过",
+        "Ruff、Mypy、前端类型检查、单元测试和生产构建通过",
+        "本地真实页面完成简单验收"
+      ],
+      "dependencies": [
+        "T-054"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-055-developer-verification-2026-08-04.md"
+    },
+    {
+      "id": "T-056",
+      "title": "异步任务低频轮询与结果通知",
+      "type": "performance",
+      "description": "统一 GEO 诊断、关键词、知识库、内容和发布任务的分阶段低频轮询、超时边界和全局结果通知，减少重复请求并避免任务完成后仍需人工刷新。",
+      "acceptanceCriteria": [
+        "GEO 诊断使用分阶段轮询且最长等待 5 分钟，成功、失败和超时均有明确通知",
+        "关键词、文章重写、质检、监测和发布按任务耗时设置独立上限并自动更新结果",
+        "内容工作台存在显式任务跟踪时不再同时高频刷新整个文章列表",
+        "知识库解析、文章批量生成和平台审核状态完成后给出最终结果通知",
+        "渠道账号列表降低为 5 分钟刷新，普通页面切换和窗口聚焦不重复刷新全部查询"
+      ],
+      "technicalChecks": [
+        "轮询退避、超时和通知组件单元测试通过",
+        "前端 Lint、类型检查、全量单元测试和生产构建通过",
+        "本地 GEO 诊断页面只读验收无控制台错误",
+        "独立 Tester 与产品验收待完成"
+      ],
+      "dependencies": [
+        "T-055"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-056-developer-verification-2026-08-05.md"
+    },
+    {
+      "id": "T-057",
+      "title": "简化 GEO 诊断优化建议",
+      "type": "ux",
+      "description": "移除运营页面中过于复杂的竞品与来源证据展示，根据诊断结果输出可直接执行的平台注册、渠道发布和内容优化建议。",
+      "acceptanceCriteria": [
+        "GEO 诊断页面不再展示竞品名单、回答摘录、来源统计和复杂置信度",
+        "存在渠道来源信号时优先给出对应平台的注册或发布建议",
+        "来源信号不足时给出明确标注的基础渠道建议且不声称平台权重",
+        "运营人员可从建议区直接进入渠道配置或关键词生成"
+      ],
+      "technicalChecks": [
+        "渠道行动建议规则单元测试通过",
+        "前端 Lint、类型检查、全量单元测试和生产构建通过",
+        "本地 GEO 诊断页面完成简单验收",
+        "独立 Tester 与产品验收待完成"
+      ],
+      "dependencies": [
+        "T-056"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-057-developer-verification-2026-08-05.md"
+    },
+    {
+      "id": "T-058",
+      "title": "全量功能流程与 UI 综合验收",
+      "type": "verification",
+      "description": "对 GEO SaaS 当前版本执行前后端自动化、全部业务页面、可见按钮、关键流程、响应式 UI、无障碍、性能与安全综合验收。",
+      "acceptanceCriteria": [
+        "前后端静态检查、单元、集成、构建和安全检查有明确结果",
+        "登录、客户、知识库、诊断、关键词、内容、渠道和设置页面完成浏览器验收",
+        "所有可安全执行的可见按钮和关键状态均被覆盖",
+        "桌面与移动关键断点完成视觉和溢出检查",
+        "所有缺陷具有页面、步骤、预期、实际和严重级别",
+        "真实付费模型调用、真实平台发布和破坏性操作明确标记测试边界"
+      ],
+      "technicalChecks": [
+        "前端全量 Vitest、Playwright、Lint、类型检查和生产构建",
+        "后端 Pytest、Ruff、Mypy、Bandit 与依赖审计",
+        "本地 API、Worker、数据库和存储健康检查",
+        "浏览器逐页按钮、流程、响应式和无障碍检查",
+        "Tester 输出 PASS、FAIL 或 BLOCKED 结论"
+      ],
+      "dependencies": [
+        "T-057"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-058-comprehensive-verification-2026-08-05.md"
+    },
+    {
+      "id": "T-059",
+      "title": "综合验收缺陷全量修复",
+      "type": "bugfix",
+      "description": "修复 T-058 综合验收发现的文章事实校验、异步进度、模型能力路由、关键词自然度、E2E 基线、工程检查、UI 可访问性与测试数据库覆盖问题。",
+      "acceptanceCriteria": [
+        "文章重写必须遵守明确修改建议，未被知识库支持的收费或免费陈述会被阻断",
+        "诊断、关键词、文章生成与重写展示真实阶段或有效进度，不再长期停留 0%",
+        "千问与豆包直接使用已验证能力端点，不为每个问题重复发送已知失败请求",
+        "AI 关键词符合口语化长度与单一意图约束，过长问题会被拆分或规范化",
+        "当前产品关键流程 E2E 与页面结构同步并全量通过",
+        "前后端格式、Lint、类型、单元、集成、构建、安全与合同检查全绿",
+        "辅助文字达到可读对比度，数据表具有明确可访问名称",
+        "PostgreSQL 并发与容量测试可在隔离测试库执行且不触碰业务库"
+      ],
+      "technicalChecks": [
+        "先为事实校验、进度、供应商端点和关键词规范化添加失败用例",
+        "前端 Vitest、Playwright、Lint、类型检查、Prettier 和生产构建通过",
+        "后端 Pytest、Ruff、Mypy、Bandit 与依赖审计通过",
+        "使用隔离 PostgreSQL 补跑并发与容量测试",
+        "真实浏览器复测诊断、关键词、内容和重写通知及页面状态",
+        "Tester 独立给出 PASS、FAIL 或 BLOCKED 结论"
+      ],
+      "dependencies": [
+        "T-058"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-059-comprehensive-fix-verification-2026-08-05.md"
+    },
+    {
+      "id": "T-060",
+      "title": "移除 GEO 诊断基础渠道建议",
+      "type": "ux",
+      "description": "删除无来源信号时固定补齐百家号、搜狐号和网易号的基础渠道建议，只保留有真实诊断来源依据的渠道动作。",
+      "acceptanceCriteria": [
+        "没有渠道来源信号时不展示基础渠道建议",
+        "存在可识别来源信号时仍展示对应的本次结果建议",
+        "普通 GEO 优化建议和业务入口保持可用"
+      ],
+      "technicalChecks": [
+        "先更新渠道建议规则单元测试并确认旧实现失败",
+        "前端格式、Lint、类型、单元测试和生产构建通过",
+        "独立 Tester 与产品验收待完成"
+      ],
+      "dependencies": [
+        "T-059"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-060-developer-verification-2026-08-05.md"
+    },
+    {
+      "id": "T-061",
+      "title": "简化内容工作台与生成阶段质量闭环",
+      "type": "feature",
+      "description": "收敛内容工作台为生成、编辑、发布和结果主线，并在初次生成阶段自动应用平台规则、质量检查和最多两轮修复。",
+      "acceptanceCriteria": [
+        "页面不再把提示词快照、批量复检和内部渠道版本作为主要操作展示",
+        "文章状态明确区分生成中、可发布、需调整和失败，需调整文章不能发布",
+        "初次生成自动规避事实、营销、关键词堆砌、联系方式和平台低质风险",
+        "发布窗口默认不选择账号且必须由用户明确确认发布目标",
+        "只有自动修复后仍无法解决的问题才向用户展示具体修改建议"
+      ],
+      "technicalChecks": [
+        "先更新内容工作台逻辑和生成质量测试并确认旧实现失败",
+        "前端格式、Lint、类型、单元测试和生产构建通过",
+        "后端内容质量与生成定向测试通过",
+        "本地内容工作台完成简单浏览器验收",
+        "独立 Tester 与产品验收待完成"
+      ],
+      "dependencies": [
+        "T-060"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-061-developer-verification-2026-08-05.md"
+    },
+    {
+      "id": "T-062",
+      "title": "生成阶段品牌次数与年龄误判收口",
+      "type": "bugfix",
+      "description": "修复模型两轮重写后仍重复品牌，以及单个年龄被错误匹配为其他年龄子串的问题，让可机械处理的质量问题在生成阶段确定性收口。",
+      "acceptanceCriteria": [
+        "每次初稿和自动重写后，企业名称在资讯平台正文最多出现3次",
+        "6岁不会因为正文同时出现16岁而继承错误企业上下文",
+        "观察到的头条号、百家号和搜狐号问题不再产生需人工调整的阻断",
+        "事实、合规和平台低质规则强度保持不变"
+      ],
+      "technicalChecks": [
+        "先增加品牌次数和年龄子串失败用例并确认旧实现失败",
+        "内容生成模型集成测试通过",
+        "后端内容测试、Ruff与Mypy通过",
+        "本地页面完成只读复核"
+      ],
+      "dependencies": [
+        "T-061"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-062-developer-verification-2026-08-06.md"
+    },
+    {
+      "id": "T-063",
+      "title": "全流程综合验收（2026-08-06）",
+      "type": "test",
+      "description": "独立验证客户、知识库、真实 GEO 诊断、AI 关键词、内容生成与重写、渠道账号、模型配置、工程门禁、数据库并发容量及 UI 反馈。",
+      "acceptanceCriteria": [
+        "客户与知识库资料可正确展示并支撑下游任务",
+        "真实 GEO 诊断与 AI 关键词任务可自动完成并通知结果",
+        "文章生成阶段主动规避重复、事实、平台低质和营销风险，自动重写后状态与提示一致",
+        "多账号渠道检测与安全发布入口可用",
+        "格式、Lint、类型、单元、集成、E2E、覆盖率、构建、安全与数据库门禁全绿",
+        "主要页面无明显遮挡、溢出、重叠并提供明确结果通知"
+      ],
+      "technicalChecks": [
+        "执行 pnpm check、lint、typecheck、test:unit、test:coverage、build 与 compose:check",
+        "执行生产依赖审计、Bandit 与隔离 PostgreSQL 锁和 10 万样本容量测试",
+        "执行 Playwright 全量 E2E",
+        "真实浏览器跑通客户、知识库、诊断、关键词、内容、渠道与设置页面",
+        "调用真实付费模型验证诊断、关键词、文章生成、重写和配置验证",
+        "Tester 独立输出 PASS、FAIL 或 BLOCKED 结论"
+      ],
+      "dependencies": [
+        "T-062"
+      ],
+      "status": "failed",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/test-T-063.md"
+    },
+    {
+      "id": "T-064",
+      "title": "关键词配置、生成任务与分层去重工作台",
+      "type": "feature",
+      "description": "新增基于知识库的可编辑主关键词、地区、二级关键词、类型和目标数量配置，以任务方式生成候选关键词，确认后进入正式关键词库，并把严格去重移到文章标题、角度和正文阶段。",
+      "acceptanceCriteria": [
+        "关键词页面展示并持久化一个主关键词、最多5个地区、最多10个二级关键词和多选关键词类型",
+        "系统给出推荐生成数量，用户可在5至50之间修改目标数量",
+        "确认生成后创建可追踪的异步任务，并展示生成中、待确认、已确认和失败状态",
+        "任务详情支持搜索、筛选、多选、删除候选和确认保存",
+        "候选关键词执行基础规范化去重，跨任务不重复生成完全相同或仅格式不同的内容",
+        "只有已确认关键词进入正式关键词库并可被内容工作台使用",
+        "文章生成前严格检查同客户历史标题、同批标题和选题角度，冲突时自动更换",
+        "现有关键词、文章、诊断和监测引用保持兼容且不丢失"
+      ],
+      "technicalChecks": [
+        "先增加配置约束、任务状态、候选确认、跨任务去重和标题去重失败用例",
+        "新增可回滚的数据库迁移和 API 合同",
+        "后端策略、内容和迁移定向测试通过",
+        "前端格式、Lint、类型、单元测试和生产构建通过",
+        "本地浏览器验证配置、任务、详情、确认和内容入口",
+        "Reviewer 检查数据兼容、并发去重、权限和范围",
+        "Tester 独立给出 PASS、FAIL 或 BLOCKED 结论"
+      ],
+      "dependencies": [
+        "T-063"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-064-developer-verification-2026-08-09.md"
+    },
+    {
+      "id": "T-065",
+      "title": "内容生成任务工作台与多内容形式分配",
+      "type": "feature",
+      "description": "把文章生成配置统一迁移到内容工作台，支持本页选择关键词、仅选择已配置自媒体平台、统一每平台篇数、多内容形式均衡分配和持久化任务详情。",
+      "acceptanceCriteria": [
+        "关键词页面移除两个内容生成按钮，内容工作台直接选择正式关键词",
+        "平台类型首版只开放自媒体，官媒与自媒体大V显示后续开放",
+        "未配置、未连接或未启用账号的平台不可加入生成任务",
+        "统一填写每个平台生成篇数，总数按平台数乘以篇数计算",
+        "内容形式支持多选并在各平台内均衡轮换",
+        "任务列表展示关键词摘要、平台类型、平台、总数、进度、状态和查看操作",
+        "任务详情可查看并编辑本次生成的文章",
+        "现有文章、发布记录和历史接口保持兼容"
+      ],
+      "technicalChecks": [
+        "先增加平台配置约束、多内容形式分配、任务聚合和接口合同失败用例",
+        "新增可回滚数据库迁移和 API 合同",
+        "后端内容与策略定向回归通过",
+        "前端格式、Lint、类型、单元测试和生产构建通过",
+        "本地浏览器验证配置、任务列表和文章详情",
+        "Reviewer 与 Tester 独立验收"
+      ],
+      "dependencies": [
+        "T-064"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-065-developer-verification-2026-08-09.md"
+    },
+    {
+      "id": "T-066",
+      "title": "内容工作台与文章发布工作区拆分",
+      "type": "ux",
+      "description": "删除内容统计卡片，把完整文章列表从内容工作台迁移到新增的文章发布页面，保留生成任务详情中的文章查看和编辑。",
+      "acceptanceCriteria": [
+        "内容工作台只展示生成配置和生成任务，不展示内容统计卡片与完整文章列表",
+        "左侧导航在内容工作台下增加文章发布且保持当前客户参数",
+        "文章发布页面保留文章筛选、当前与已删除切换、查看、编辑、复制、删除、恢复和选择发布",
+        "生成任务详情仍能查看和编辑本次生成文章",
+        "文章、版本、发布记录和归档数据不丢失"
+      ],
+      "technicalChecks": [
+        "先增加文章发布路由失败用例",
+        "前端格式、Lint、类型、定向单测和生产构建通过",
+        "本地浏览器验证内容工作台与文章发布页面",
+        "独立 Tester 给出 PASS、FAIL 或 BLOCKED 结论"
+      ],
+      "dependencies": [
+        "T-065"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-066-developer-verification-2026-08-09.md"
+    },
+    {
+      "id": "T-067",
+      "title": "AI 文章生成即达标质量闭环",
+      "type": "bugfix",
+      "description": "修复自动修正耗尽后仍保存为需调整、标题去重后未复检、跨文章重复在保存后才发现的问题；AI 生成和按建议重新生成只保存达到可发布标准的版本。",
+      "acceptanceCriteria": [
+        "AI 初次生成在保存前完成事实、合规、平台低质、标题和跨文章重复检查",
+        "首次生成前向模型提供与校验器一致的结构化发布合同，包含事实、数字、费用、标题、品牌、渠道和重复内容边界",
+        "首次候选仍有阻断问题时只执行一次完整重写并重新检查，不依赖多轮重写生产文章",
+        "达到可发布标准才创建文章版本，不再把未达标候选保存为需调整",
+        "自动修正耗尽时任务明确失败并说明未保存半成品",
+        "按建议重新生成失败时保留原文章状态和版本，不把原文章改成需调整"
+      ],
+      "technicalChecks": [
+        "先增加最终发布门禁和跨文章重复前置检查失败用例",
+        "内容生成与重新生成定向测试通过",
+        "后端 Ruff 与 Mypy 通过",
+        "独立 Tester 与产品验收待完成"
+      ],
+      "dependencies": [
+        "T-066"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-067-developer-verification-2026-08-09.md"
+    },
+    {
+      "id": "T-068",
+      "title": "文章确认发布队列与批量发布",
+      "type": "feature",
+      "description": "生成任务由运营人员确认后才进入文章发布页面；发布页收敛为未发布、已发布、发布失败三类队列，并支持单篇和批量直发。",
+      "acceptanceCriteria": [
+        "只有已完成、已通过质量门禁且经用户确认的生成任务文章进入发布页面",
+        "文章发布页只保留关键词、关键词类型和发布平台筛选，不再展示内容状态筛选与发布状态筛选",
+        "文章按未发布、已发布和发布失败三类互斥展示，不再展示已删除入口",
+        "列表操作只保留查看和发布，发布失败文章可重新发布",
+        "单篇发布自动使用文章目标平台下已连接且已启用的账号",
+        "未发布与发布失败列表支持全选和批量发布，任务结果自动流转到对应分类"
+      ],
+      "technicalChecks": [
+        "增加任务确认数据库迁移、API 契约和发布门禁",
+        "增加发布队列分类与确认文章过滤单元测试",
+        "后端内容定向测试、Ruff 与 Mypy 通过",
+        "前端格式、Lint、类型、单元测试和生产构建通过",
+        "Tester 独立验收"
+      ],
+      "dependencies": [
+        "T-067"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-068-remediation-developer-verification-2026-08-10.md"
+    },
+    {
+      "id": "T-069",
+      "title": "网易号多账号与专用自动发布闭环",
+      "type": "feature",
+      "description": "把现有网易号通用占位适配升级为经过平台规则约束的专用账号、文章生成、页面填写、提交回执和审核状态闭环。",
+      "acceptanceCriteria": [
+        "网易号支持最多5个独立浏览器会话账号并提供登录、检测、启用、暂停和重新登录",
+        "文章生成阶段应用网易号标题、正文、联系方式、低质营销和图片规格合同",
+        "发布前重新检测账号并准确填写标题、正文配图、单图封面及当前页面展示的声明",
+        "提交后能够区分审核中、已发布、审核失败、登录失效、安全验证和真正发布失败",
+        "内容管理按准确标题回查，审核中不误报失败，公开后保存准确原文链接",
+        "单账号失败不影响其他账号，重复请求不会重复提交同一文章版本",
+        "渠道配置、内容工作台和文章发布页面只在网易号能力真实可用时开放对应操作"
+      ],
+      "technicalChecks": [
+        "先增加网易号规则、账号检测、页面字段、回执和审核回查失败用例",
+        "后端发布定向测试、Ruff和Mypy通过",
+        "前端格式、Lint、类型、单元测试和生产构建通过",
+        "fixed_mock完整流程和本地页面只读验收通过",
+        "真实账号发布在用户确认具体文章和账号后单独验收",
+        "Reviewer与Tester独立给出结论"
+      ],
+      "dependencies": [
+        "T-068"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-069-developer-verification-2026-08-10.md"
+    },
+    {
+      "id": "T-070",
+      "title": "头条号低质治理与发布保护",
+      "type": "hardening",
+      "description": "依据今日头条社区规范和账号已发生的批量低质处罚，把低质、同质化、纯广告、诱导标题和过密发布风险前置到文章生成及发布门禁。",
+      "acceptanceCriteria": [
+        "头条号首次生成合同要求一篇解决一个问题、至少3个有效内容部分且企业信息不超过约15%",
+        "企业标准名称最多自然出现2次，正文不包含纯广告、推荐软文、报名预约、到店试听、促销优惠、效果承诺和诱导联系",
+        "确定性质量门禁拦截诱导夸张标题、内容部分不足、直接转化、软文推介和企业篇幅过高",
+        "真实环境同一头条账号至少间隔3小时且滚动24小时最多提交2篇，并明确这是系统保护策略而非平台官方阈值",
+        "固定模拟发布不受真实账号发布节流影响，现有发布和内容测试保持兼容"
+      ],
+      "technicalChecks": [
+        "先增加头条号生成规范、质量门禁、发布节流失败用例",
+        "内容与发布定向回归测试通过",
+        "后端 Ruff 格式、Lint 与 Mypy 通过",
+        "Reviewer 与 Tester 独立验收待完成"
+      ],
+      "dependencies": [
+        "T-069"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-070-developer-verification-2026-08-10.md"
+    },
+    {
+      "id": "T-071",
+      "title": "企鹅号多账号与专用自动发布闭环",
+      "type": "feature",
+      "description": "接入企鹅号账号配置、平台专属文章规则、真实企业配图、正文选封面、AI声明、发布回执及审核状态回查。",
+      "acceptanceCriteria": [
+        "企鹅号支持最多5个独立浏览器会话账号，并提供登录、检测、启用、暂停和重新登录",
+        "文章生成阶段应用企鹅号标题、正文质量、联系方式、营销导流、AI声明和图片规格合同",
+        "每个企鹅号账号每日最多提交5篇，达到上限时不打开发布页面且提示明确",
+        "发布前准确填写标题和正文、插入2张真实企业图片、从正文选择封面并如实声明AI生成",
+        "提交后区分审核中、已发布、审核失败、登录失效、安全验证和真正发布失败",
+        "内容管理按准确标题回查，审核中不误报失败，公开后保存腾讯原文链接",
+        "不保存账号密码，不绕过验证码、安全验证或平台风控"
+      ],
+      "technicalChecks": [
+        "先增加企鹅号规则、每日限额、发布回执和审核回查失败用例",
+        "后端发布与渠道定向测试、Ruff和Mypy通过",
+        "前端格式、Lint、类型、单元测试和生产构建通过",
+        "fixed_mock完整流程与本地渠道配置页面验收通过",
+        "真实账号仅做用户可见的登录和只填充验证，真实提交需用户另行确认",
+        "Reviewer与Tester独立给出结论"
+      ],
+      "dependencies": [
+        "T-070"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": ".sdd/test-reports/T-071-developer-verification-2026-08-10.md"
+    },
+    {
+      "id": "T-072",
+      "title": "一点号多账号与分阶段自动发布闭环",
+      "type": "feature",
+      "description": "接入一点号账号配置、平台专属文章规则、图片预处理、浏览器会话检测、发布回执及审核状态回查；真实提交只在已登录账号完成页面字段验证后开放。",
+      "acceptanceCriteria": [
+        "一点号支持最多5个独立浏览器会话账号，并提供登录、检测、启用、暂停和重新登录；界面提示同一企业主体最多认证两个一点号的官方限制",
+        "文章生成阶段应用一点号标题、正文质量、营销导流、AI声明和图片合同，保存前拦截低质量和高同质化风险",
+        "发布前再次检测账号；未完成真实编辑器字段验证时不自动执行最终提交",
+        "完成字段验证后，提交结果区分审核中、已发布、审核失败、登录失效、安全验证和真正发布失败",
+        "内容管理按精确标题回查，审核中不误报失败，公开后保存一点资讯原文链接",
+        "不保存账号密码，不绕过验证码、安全验证或平台风控"
+      ],
+      "technicalChecks": [
+        "先增加一点号规则、图片处理、账号目录和发布状态失败用例",
+        "后端发布与内容定向测试、Ruff和Mypy通过",
+        "前端格式、Lint、类型、单元测试和生产构建通过",
+        "fixed_mock完整流程与本地渠道配置页面验收通过",
+        "真实账号先做用户可见的登录和只填充验证；真实提交需用户另行确认",
+        "Reviewer与Tester独立给出结论"
+      ],
+      "dependencies": [
+        "T-071"
+      ],
+      "status": "in_progress",
+      "user_gate": true,
+      "evidence": null
+    },
+    {
+      "id": "T-073",
+      "title": "独立工程交接与解除 ECC 工具绑定",
+      "type": "maintenance",
+      "description": "仅整理开发工具、Git 配置、环境示例与文档，保留业务功能、历史任务与本机运行状态；不提交或推送 GitHub。",
+      "acceptanceCriteria": [
+        "项目入口不要求安装 ECC_V2 或读取作者电脑绝对路径",
+        "README 提供独立配置、启动、初始化账号与测试步骤，并区分本机浏览器发布和容器运行",
+        "交接说明列出环境、模块、资料与外部账号交接边界，清单逐项覆盖原有39项未完成任务",
+        "业务文件与原有65项任务对象不变，本机服务和数据不变",
+        "本地 Git 独立且无远程、无提交，敏感配置与运行产物被忽略"
+      ],
+      "technicalChecks": [
+        "业务 SHA-256 基线与原有任务对象比对",
+        "文档相对链接、脚本与环境字段核对",
+        "node --test scripts/workspace.test.mjs",
+        "Compose 基线及开发覆盖层 config --quiet",
+        "独立 Git 根目录、ignore 检查与候选文件审查",
+        "独立 Reviewer 和 Tester 聚焦验证"
+      ],
+      "dependencies": [],
+      "affectedAreas": [
+        "AGENTS.md / CLAUDE.md / .cursor/rules",
+        "Git 忽略、换行和本地仓库",
+        "README / docs/handoff",
+        "backend/.env.example / frontend/.env.example / compose.dev.yaml"
+      ],
+      "compatibilityConstraints": [
+        "不修改业务源码、测试、迁移、现有 Compose 或依赖锁文件",
+        "不改任何历史任务的状态与证据",
+        "不修改真实环境文件、数据库、业务文件、浏览器会话或运行服务"
+      ],
+      "migrationRollback": "无数据库迁移；原入口与配置备份在 .sdd/temp/T-073-before，恢复仅限本任务文件。",
+      "status": "passed",
+      "user_gate": false,
+      "evidence": ".sdd/test-reports/test-T-073.md",
+      "verification_mode": "focused",
+      "workflow_contract_version": "1.0",
+      "workflow": "existing-change",
+      "change_size": "small",
+      "development_readiness": {
+        "status": "passed",
+        "checked_at": "2026-10-13T12:20:55.425425+08:00",
+        "baseline": "当前业务文件 SHA-256 清单、原有65项任务副本、4/4结构测试；上层Git不跟踪业务目录。",
+        "authorization": "用户要求独立交接、解除ECC强制绑定、补齐文档与任务清单，不改业务、不推送。",
+        "evidence": ".sdd/evidence/T-073-development-readiness.md"
+      }
+    }
+  ]
+}
