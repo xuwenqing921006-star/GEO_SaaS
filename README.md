@@ -8,6 +8,7 @@
 - [未完成任务清单](docs/handoff/OPEN-TASKS.md)：38 项进行中、1 项失败的历史业务任务及逐项验收要求。
 - [项目约定](AGENTS.md)：工具无关的开发约定。
 - [GitHub 仓库与协作](docs/handoff/REPOSITORY.md)：仓库地址、克隆与分支协作。
+- [数据库表结构＋演示数据](database/README.md)：可以直接导入 PostgreSQL 18 的 SQL 包，不要求 Docker；包含 41 张业务表和全新虚构数据。
 
 ## 环境与目录
 
